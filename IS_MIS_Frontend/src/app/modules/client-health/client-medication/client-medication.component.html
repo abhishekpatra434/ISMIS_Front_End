@@ -1,0 +1,342 @@
+<div class="page-head">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="pageHeading">Client Health - Medication</h1>
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="button" class="btn-custom btn-red mr-2" (click)="resetScreen()" *ngIf="clientView">Reset</button>
+            <button type="button" class="btn-custom btn-red mr-2" (click)="openExportDialog()">Export All</button>
+            <!-- <button type="button" class="btn-custom btn-red" (click)="addNewMedication()" *ngIf="showClientMedicationList || medicationId!=null">Add New</button> -->
+        </div>
+    </div>
+</div>
+
+<div class="sub-content">
+    <form [formGroup]="searchClientForm">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client UID :</label>
+                        <!-- <input type="text" formControlName="clientId" class="form-control"> -->
+                        <div>
+                            <p-autoComplete [suggestions]="clientUIDList" placeholder="Type Client UID" (onSelect)="setClientUID($event)" [minLength]="1"
+                                #clientID (completeMethod)="getclientUIDList($event)" formControlName="clientUID" (onKeyUp)="manageUIDValue(clientID.value)">
+                                <ng-template let-results pTemplate="item">
+                                    <span>{{results.clientUid}}</span>
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client Name :</label>
+                        <!-- <input type="text" formControlName="clientId" class="form-control"> -->
+                        <div>
+                            <p-autoComplete [suggestions]="clientNameList" placeholder="Type Client Name" (onSelect)="setClientName($event)" [minLength]="1"
+                                #clientN (completeMethod)="getClientNameList($event)" formControlName="clientName" (onKeyUp)="manageNameValue(clientN.value)">
+                                <ng-template let-results pTemplate="item">
+                                    <span>{{results.clientName}} (
+                                        <b>{{results.clientUid}}</b>) </span>
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="col-md-12 text-center">
+                        <button type="button" class="btn-custom btn-red mr-2" (click)="searchClientList()">Search</button>
+                        <button type="button" class="btn-custom btn-blue" (click)="resetForm()">Reset</button>
+                    </div> -->
+            </div>
+        </fieldset>
+    </form>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card client-view" *ngIf="clientView">
+                <div class="card-body">
+                    <div class="text-center">
+                        <img src="assets/images/profile.png" *ngIf="profilePhoto == ''" width="100" height="100" class="rounded-circle ee">
+
+                        <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !==''" width="100" height="100" class="rounded-circle ee">
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-uppercase">{{clientView.clientMasterBean.clientName}}
+                            <br>
+                            <small>
+                                <b>(UID : </b>
+                                {{clientView.clientMasterBean.clientUid}})
+                            </small>
+                        </h4>
+                        <h6>
+                            <b>Age/Sex : </b>
+                            {{clientView.clientMasterBean.age==null?"N/A":clientView.clientMasterBean.age}} / {{clientView.clientMasterBean.sexStr==null?"N/A":clientView.clientMasterBean.sexStr}}
+                        </h6>
+                        <h6>
+                            <b>Date of Entry : </b>
+                            {{clientView.clientMasterBean.dateOfEntry==null?"N/A":(clientView.clientMasterBean.dateOfEntry | date:'dd-MM-yyy')}}
+                        </h6>
+                        <fieldset class="mt-2 text-left">
+                            <legend>Finding Details</legend>
+
+                            <p>
+                                <b>Found In Area : </b>
+                                {{clientView.clientMasterBean.foundInArea==null?"N/A":clientView.clientMasterBean.foundInArea}}
+                            </p>
+
+                            <p>
+                                <b>Ward No. : </b>
+                                {{clientView.clientMasterBean.wardNo==null?"N/A":clientView.clientMasterBean.wardNo}}
+                            </p>
+
+                            <p>
+                                <b>Police Station. : </b>
+                                {{clientView.clientMasterBean.policeStation==null?"N/A":clientView.clientMasterBean.policeStation}}
+                            </p>
+
+                            <p>
+                                <b>Landmark. : </b>
+                                {{clientView.clientMasterBean.landmark==null?"N/A":clientView.clientMasterBean.landmark}}
+                            </p>
+
+                        </fieldset>
+                        <fieldset class="mt-2 text-left">
+                            <legend>Intake Medication</legend>
+
+                            <p>
+                                <b>Diagnosis : </b>
+                                {{clientView.clientInitMedicalDetBean!=null?(clientView.clientInitMedicalDetBean.diagnosisGroupStr=="Others"?clientView.clientInitMedicalDetBean.diagnosisGroupIfOth:((clientView.clientInitMedicalDetBean.diagnosisGroupStr!=null || clientView.clientInitMedicalDetBean.diagnosisGroupStr!='')?clientView.clientInitMedicalDetBean.diagnosisGroupStr:'N/A')):"N/A"}}
+                            </p>
+                            <p>
+                                <b>Doctor Name : </b>
+                                {{clientView.clientIntakeAdministrationBean!=null?((clientView.clientIntakeAdministrationBean.doctorSignature!=null || clientView.clientIntakeAdministrationBean.doctorSignature!='')?clientView.clientIntakeAdministrationBean.doctorSignature:'N/A'):"N/A"}}
+                            </p>
+                        </fieldset>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card" *ngIf="clientView">
+                <div class="card-body healthData">
+                    <div class="content table-responsive mt-2">
+
+                        <div *ngIf="!showClientMedicationList && addEditMedication">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="pageHeading" *ngIf="medicationId==null">Add Medication record</h3>
+                                    <h3 class="pageHeading" *ngIf="medicationId!=null">Edit Medication record</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <button class="btn btn-link btn-sm mr-2" *ngIf="clientMedicationList.length != 0" type="button" (click)="backToMedicationList()">Back to List</button>
+                                    <button type="button" class="btn-custom btn-sm btn-blue mr-2" (click)="addNewMedication()" *ngIf="showClientMedicationList || medicationId!=null">Add New</button>
+                                    <button type="button" class="btn-custom btn-sm btn-red mr-2" (click)="saveUpdateClientMedication()">Save</button>
+                                </div>
+                            </div>
+
+                            <form [formGroup]="medicationForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Diagnosis</label>
+                                            <!-- <select formControlName="diagnosis" class="form-control" (change)="setDiagnosisGroupIfOth($event)">
+                                                <option *ngFor="let d of diagnosisList" [value]="d.categoryAttributeId">
+                                                    {{d.attrDesc}}
+                                                </option>
+                                            </select> -->
+                                            <input type="text" class="form-control" formControlName="diagnosis">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Doctor Name</label>
+                                            <input type="text" class="form-control" formControlName="doctorName">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Date of Prescription</label>
+                                            <input type="text" formControlName="dateOfPrescription" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                class="form-control date" #dp="bsDatepicker" [maxDate]="maxDate" placement="auto"
+                                                [readonly]="isView=='Y'"  [minDate]="dateOfEntry" (bsValueChange)="setCohortYear($event)" required>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Medicine Type</th>
+                                                    <th>Medicine Name</th>
+                                                    <th>Doses</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody formArrayName="clientMedicationDetailsList">
+                                                <tr *ngFor="let c of clientMedicationDetailsList.controls; let i = index" [formGroup]="c" [attr.id]="'tr'+i">
+                                                    <td>
+                                                        <select formControlName="medicineType" class="form-control">
+                                                            <option *ngFor="let m of medicineType" [value]="m.categoryAttributeId">
+                                                                {{m.attrDesc}}
+                                                            </option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="medicineName">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="medicineDoses">
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"  *ngIf="c.value.medicationDetailId==null" tooltip="Delete Medicine" placement="auto" class="btn btn-link btn-sm" (click)="deleteMedicine(i)">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="addNewRow text-center p-2 mb-2" (click)="addNewMedicine()">
+                                            <i class="fa fa-plus"></i> Add New Medicine
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </form>
+                        </div>
+
+                        <div *ngIf="showClientMedicationList">
+
+                            <!-- <h3 class="pageHeading"  [hidden]="clientMedicationList.length == 0 && !allowToAdd">Latest BMI records</h3> -->
+                            <div class="row no-gutters">
+                                <div class="col-md-6">
+                                    <h3 class="pageHeading" [hidden]="clientMedicationList.length == 0 && !allowToAdd">Latest Medication records</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <button type="button" class="btn-custom btn-sm btn-blue mr-2" (click)="addNewMedication()" *ngIf="showClientMedicationList || medicationId!=null">Add New</button>
+                                </div>
+                            </div>
+                            <div class="text-center no-record" *ngIf="clientMedicationList.length == 0 && !allowToAdd">
+                                <h1>
+                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                </h1>
+                                <h2>Please fill up primary Medication details in the Intake Form.</h2>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card health-card-view mb-2" *ngFor="let c of clientMedicationList | slice:pagination.first:pagination.last; let i = index">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-5">
+                                                    <p>
+                                                        Prescription Date : {{c.dateOfPrescription | date: 'dd-MM-yyyy'}}
+                                                    </p>
+                                                    <p>
+                                                        Doctor Name : {{c.doctorName}}
+                                                    </p>
+                                                    <p>
+                                                        Diagnosis : {{c.diagnosis}}
+                                                    </p>
+                                                </div>
+                                                <div class="col-5">
+                                                    <h6>Medicine List</h6>
+                                                    <p *ngIf="c.clientMedicationDetailsList.length==0">N/A</p>
+                                                    <ol>
+                                                        <li *ngFor="let m of c.clientMedicationDetailsList">
+                                                            {{m.medicineName}}
+                                                            <span *ngIf="m.medicineDoses!=''">
+                                                                (Dose: {{m.medicineDoses}})
+                                                            </span>
+                                                        </li>
+                                                    </ol>
+                                                </div> 
+                                                <div class="col-2 text-right btn-section">
+                                                    <button type="button" class="btn btn-blue btn-sm mr-2"  tooltip="View Medication" placement="auto" container="body"  (click)="viewMedication(c)">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+                                                    <button  type="button" class="btn btn-blue btn-sm" *ngIf="i==0" tooltip="Edit Medication" placement="auto" container="body" (click)="editMedication(c)">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p-paginator *ngIf="clientMedicationList.length>0" [rows]="pagination.rows" [totalRecords]="pagination.totalRecords" (onPageChange)="searchPaginate($event)"></p-paginator>
+                            <!-- <p-dataView [value]="clientMedicationList" [paginator]="true" [rows]="10">
+                                            <ng-template let-c pTemplate="listItem">
+                                                <div>
+                                                        {{c.dateOfPrescription | date: 'dd-MM-yyyy'}}
+                                                </div>
+                                                <hr>
+                                            </ng-template>
+                                            <ng-template let-c pTemplate="gridItem">
+                                                <div class="ui-g-12 ui-md-3">
+                                                        {{c.doctorName}}
+                                                </div>
+                                            </ng-template>
+                                            
+                                        </p-dataView> -->
+
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-dialog header="Export Medication data for period of" [(visible)]="showExportDailog" [modal]="true">
+        <div class="row">
+            <div class="col-6">
+                <div class="form-group">
+                    <label>From Date :</label>
+                    <input type="text" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                        class="form-control date" #dp="bsDatepicker" #fromDate [maxDate]="maxDate" placement="auto" (bsValueChange)="setFromDate($event)">
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label>To Date :</label>
+                    <input type="text" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                        class="form-control date" #dp="bsDatepicker" #toDate [maxDate]="maxDate" placement="auto" (bsValueChange)="setToDate($event)"
+                        required>
+                </div>
+            </div>
+            <div class="col-12 text-right">
+                <button type="button" class="btn-custom btn-blue" (click)="exportToExcel(fromDate.value, toDate.value)">Export</button>
+            </div>
+        </div>
+    </p-dialog>
+
+
+    <p-dialog header="View Medication"  [contentStyle]="{'max-width':'400px'}" [(visible)]="viewDialog" [modal]="true">
+            <div class="row viewDialog" *ngIf="viewData">
+                    <div class="col-md-6"><p class="header">Date of Prescription</p> </div>
+                    <div class="col-md-6"><p class="data">{{viewData.dateOfPrescription | date: 'dd-MM-yyyy'}}</p> </div>
+                    <div class="col-md-6"><p class="header">Diagnosis</p> </div>
+                    <div class="col-md-6"><p class="data">{{viewData.diagnosis}}</p> </div>
+                    <div class="col-md-6"><p class="header">Doctor Name</p> </div>
+                    <div class="col-md-6"><p class="data">{{viewData.doctorName}}</p> </div>
+                    <div class="col-md-6"><p class="header">Medicine List</p> </div>
+                    <div class="col-md-6">
+                    <div class="data">
+                            <span *ngIf="viewData.clientMedicationDetailsList.length==0">N/A</span>
+                            <ol>
+                                <li *ngFor="let m of viewData.clientMedicationDetailsList">
+                                    {{m.medicineName}}
+                                    <span *ngIf="m.medicineDoses!=''">
+                                        (Dose: {{m.medicineDoses}})
+                                    </span>
+                                </li>
+                            </ol>
+                        </div> 
+                    </div>
+            </div>
+                   
+
+        </p-dialog>

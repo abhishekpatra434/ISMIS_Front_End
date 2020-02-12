@@ -1,0 +1,1889 @@
+
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+<form [formGroup]="intakeForm">
+    <div class="page-head">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="pageHeading" *ngIf="!isEdit || isView=='D'">Intake Form -Client Details</h1>
+                <h1 class="pageHeading" *ngIf="isView=='N'">Edit Intake Form -Client Details</h1>
+                <h1 class="pageHeading" *ngIf="isView=='Y'">View Intake Form -Client Details</h1>
+            </div>
+            <div class="col-md-6 text-right">
+                <button class="btn-custom btn-blue mr-2" type="button" (click)="backToSearch()" *ngIf="clientId!=null && isView!='D'">Back</button>
+                <ng-container *ngIf="isView!='Y'">
+                    <button class="btn-custom btn-red" type="button" (click)="saveIntakeForm('save')" [disabled]="!intakeForm.dirty && isView!='D'"
+                        *ngIf="!isEdit || isView=='D'">Save</button>
+                    <button class="btn-custom btn-red" type="button" (click)="saveIntakeForm('submit')" [disabled]="!intakeForm.dirty" *ngIf="isEdit && isView!='D'">Update</button>
+                </ng-container>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="sub-content" (scroll)="scrollToHideDatePicker()">
+        <ng-container *ngIf="isView!='Y'">
+            <p-accordion [activeIndex]="index" (onOpen)="onTabOpen($event)"  #accordion>
+                <p-accordionTab [selected]="submitted && intakeForm.controls.clientMasterBean.invalid">
+                    <p-header>
+                        General Information
+                    </p-header>
+
+                    <div class="row" formGroupName="clientMasterBean">
+                        <div class="col-md-8 no-gutter">
+                            <div class="row mb-1">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>UID No :</label>
+                                        <input type="text" tabindex="-1" class="form-control" formControlName="clientUid" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Name
+                                            <span class="validation-error">*</span>:</label>
+                                        <input type="text" formControlName="clientName" class="form-control" required focusInvalidInput maxlength="100" [readonly]="isView=='Y'">
+                                        <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('clientName').errors">
+                                            <span *ngIf="intakeForm.get('clientMasterBean').get('clientName').errors.required">Client Name is required</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Age
+                                            <small>(in yrs.)</small>
+                                            <span class="validation-error">*</span> :</label>
+                                        <input type="text" formControlName="age" class="form-control" [readonly]="isView=='Y'" #cAge (blur)="setAgeClass(cAge.value)"
+                                            numbersOnly maxlength="3" required>
+                                        <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('age').errors">
+                                            <span *ngIf="intakeForm.get('clientMasterBean').get('age').errors.required">Client Age is required</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Age Class :</label>
+                                        <input type="text" tabindex="-1" [value]="ageClass" class="form-control" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div>
+                                            <label>Sex
+                                                <span class="validation-error">*</span>:</label>
+                                        </div>
+                                        <select formControlName="sex" class="form-control" disabled *ngIf="isView=='Y'">
+                                            <!-- <option value="0">Select</option> -->
+                                            <option *ngFor="let d of genderList" [value]="d.categoryAttributeId">
+                                                {{d.attrDesc}}
+                                            </option>
+                                        </select>
+                                        <select formControlName="sex" class="form-control" required *ngIf="isView!='Y'">
+                                            <!-- <option value="0">Select</option> -->
+                                            <option *ngFor="let d of genderList" [value]="d.categoryAttributeId">
+                                                {{d.attrDesc}}
+                                            </option>
+                                        </select>
+                                        <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('sex').errors">
+                                            <span *ngIf="intakeForm.get('clientMasterBean').get('sex').errors.required">Client Sex is required</span>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Type of Entry :</label>
+                                        <select formControlName="typeOfEntry" class="form-control" disabled *ngIf="isView=='Y'">
+                                            <!-- <option value="0">Select</option> -->
+                                            <option *ngFor="let d of typeOfEntryList" [value]="d.attrId">
+                                                {{d.attrDesc}}
+                                            </option>
+                                        </select>
+                                        <select formControlName="typeOfEntry" class="form-control" *ngIf="isView!='Y'">
+                                            <!-- <option value="0">Select</option> -->
+                                            <option *ngFor="let d of typeOfEntryList" [value]="d.categoryAttributeId">
+                                                {{d.attrDesc}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <span class="validation-error" *ngIf="message">{{message}}</span>
+                            <!-- <input #file type="file" accept='image/*' (change)="preview(file.files)" /> -->
+                            <div class="profile-upload">
+                                <div class="profile-edit">
+                                    <input type='file' id="imageUpload" #file accept=".png, .jpg, .jpeg" (change)="preview($event)" />
+                                    <label for="imageUpload" tooltip="Image size should be less than 500KB and image type should be .png, .jpg or .jpeg" placement="bottom"
+                                        container="body" [class.displayNone]="isView=='Y'"></label>
+                                </div>
+                                <div class="profile-preview" *ngIf="!isEdit">
+                                    <div [style.background-image]="'url(' + imgURL + ')'" *ngIf="imgURL"></div>
+                                    <div style="background-image: url(assets/images/profile.png);" *ngIf="!imgURL"></div>
+                                    <!-- <img [src]="imgURL" *ngIf="imgURL" class="img-thumbnail rounded-circle">
+                                <img src="assets/images/profile.png"  *ngIf="!imgURL" class="img-thumbnail rounded-circle"> -->
+                                </div>
+                                <div class="profile-preview" *ngIf="isEdit">
+                                    <div [style.background-image]="'url(' + imgURL + ')'" *ngIf="imgURL!=''"></div>
+                                    <div style="background-image: url(assets/images/profile.png);" *ngIf="profilePhoto=='' && imgURL==''"></div>
+                                    <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !=='' && imgURL!=null" width="200" height="200" class="rounded-circle ee">
+                                    <!-- <img [src]="imgURL" *ngIf="profilePhoto =='' && imgURL!=null" width="200" class="img-thumbnail rounded-circle x">
+                                <img src="../assets/images/profile.png" *ngIf="profilePhoto =='' && imgURL==null" width="200" class="img-thumbnail rounded-circle y"> -->
+                                    <!-- <img [src]="imgURL" *ngIf="imgURL" class="img-thumbnail rounded-circle">
+                                <img src="assets/images/profile.png"  *ngIf="!imgURL" class="img-thumbnail rounded-circle"> -->
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Date of Entry
+                                    <span class="validation-error">*</span>:</label>
+                                <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" (bsValueChange)="setCohortYear($event, 'clientMasterBean')" bsDatepicker
+                                    [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }" class="form-control date" [maxDate]="maxDate"
+                                    #dp="bsDatepicker" placement="auto" required *ngIf="!isEdit">
+                                <h6 *ngIf="isEdit">{{intakeForm.get('clientMasterBean').get('dateOfEntry').value | date:'dd-MM-yyyy'}}</h6>
+                                <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('dateOfEntry').errors">
+                                    <span *ngIf="intakeForm.get('clientMasterBean').get('dateOfEntry').errors.required">Date of Entry is required</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Cohort Year :</label>
+                                <input type="text" tabindex="-1" formControlName="cohortYear" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Found in Area
+                                    <span class="validation-error">*</span>:</label>
+                                <input type="text" formControlName="foundInArea" class="form-control" [readonly]="isView=='Y'" required maxlength="200">
+                                <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('foundInArea').errors">
+                                    <span *ngIf="intakeForm.get('clientMasterBean').get('foundInArea').errors.required">Found in Area is required</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Landmark :</label>
+                                <input type="text" formControlName="landmark" class="form-control" [readonly]="isView=='Y'" maxlength="100">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Police Station
+                                    <span class="validation-error">*</span>:</label>
+                                <input type="text" formControlName="policeStation" class="form-control" maxlength="30" required [readonly]="isView=='Y'">
+                                <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('policeStation').errors">
+                                    <span *ngIf="intakeForm.get('clientMasterBean').get('policeStation').errors.required">Police Station is required</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Ward No :</label>
+                                <input type="text" formControlName="wardNo" class="form-control" [readonly]="isView=='Y'" maxlength="20">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Referred By
+                                    <span class="validation-error">*</span>:</label>
+                                <select class="form-control" formControlName="referredBy" required disabled *ngIf="isView=='Y'">
+                                    <!-- <option value="0">Select</option> -->
+                                    <option *ngFor="let d of referredByList" [value]="d.categoryAttributeId">
+                                        {{d.attrDesc}}
+                                    </option>
+                                </select>
+                                <select class="form-control" formControlName="referredBy" required *ngIf="isView!='Y'" (change)="setReferredByIfOth($event)">
+                                    <!-- <option value="0">Select</option> -->
+                                    <option *ngFor="let d of referredByList" [value]="d.categoryAttributeId">
+                                        {{d.attrDesc}}
+                                    </option>
+                                </select>
+                                <div class="validation-error" *ngIf="submitted && intakeForm.get('clientMasterBean').get('referredBy').errors">
+                                    <span *ngIf="intakeForm.get('clientMasterBean').get('referredBy').errors.required">Referred By is required</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6" *ngIf="showReferredOth">
+                            <div class="form-group">
+                                <label>Referred By (If Others) :</label>
+                                <input type="text" formControlName="referredByIfOth" class="form-control" [readonly]="isView=='Y'" maxlength="200">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Referred Description :</label>
+                                <input type="text" formControlName="referredDesc" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Reference No :</label>
+                                <input type="text" formControlName="referenceNo" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Indentification Marks :</label>
+                                <input type="text" formControlName="identificationMark" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="form-group">
+                                <label>Indentification Date :</label>
+                                <input type="text" formControlName="dateOfIdentification" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                    class="form-control date" placement="auto" [readonly]="isView=='Y'"  [maxDate]="doe">
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="mt-2 text-right">
+                        <button class="btn-custom btn-sm btn-blue" type="button" (click)="openNext()">Next >></button>
+                    </div>
+
+                </p-accordionTab>
+                <p-accordionTab [disabled]="intakeForm.invalid">
+                    <p-header>
+                        Address & Family Information
+                    </p-header>
+
+
+                    <fieldset>
+                        <legend>Address Details</legend>
+                        <div class="row" formGroupName="clientAddressBean">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Country :</label>
+                                    <input type="text" formControlName="country" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>State :</label>
+                                    <input type="text" formControlName="state" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>District :</label>
+                                    <input type="text" formControlName="district" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Post Office :</label>
+                                    <input type="text" formControlName="postOffice" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Police Station :</label>
+                                    <input type="text" formControlName="policeStation" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Gram Panchayat/Mouza :</label>
+                                    <input type="text" formControlName="gramPanchayatMouza" class="form-control" [readonly]="isView=='Y'" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Para/Village :</label>
+                                    <input type="text" formControlName="paraVillage" class="form-control" [readonly]="isView=='Y'" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Pincode :</label>
+                                    <input type="text" formControlName="pinNo" class="form-control" numbersOnly maxlength="6" [readonly]="isView=='Y'">
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Family/Guardian Details</legend>
+                        <div class="row" formGroupName="clientFamilyBean">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Name of Guardian :</label>
+                                    <input type="text" formControlName="guardianName" class="form-control" [readonly]="isView=='Y'" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Address of Guardian :</label>
+                                    <input type="text" formControlName="contactAddress" class="form-control" [readonly]="isView=='Y'" maxlength="200">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Contact 1 of Guardian :</label>
+                                    <input type="text" formControlName="contact1No" class="form-control" numbersOnly [readonly]="isView=='Y'" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Contact 2 of Guardian :</label>
+                                    <input type="text" formControlName="contact2No" class="form-control" numbersOnly [readonly]="isView=='Y'" maxlength="10">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Relationship with Guardian :</label>
+
+                                    <select class="form-control" formControlName="relationWithGuardian" *ngIf="isView!='Y'" (change)="setRelationIfOth($event)">
+                                        <!-- <option value="0">Select</option> -->
+                                        <option *ngFor="let d of relationshipList" [value]="d.categoryAttributeId">
+                                            {{d.attrDesc}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6" *ngIf="showRelationOth">
+                                <div class="form-group">
+                                    <label>Relationship (If Others) :</label>
+                                    <input type="text" formControlName="relationIfOth" class="form-control" [readonly]="isView=='Y'">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Family Size :</label>
+                                    <input type="text" formControlName="familySize" class="form-control" numbersOnly [readonly]="isView=='Y'" maxlength="2">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Occupation of Family :</label>
+                                    <input type="text" formControlName="occupationOfFamily" class="form-control" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Monthly Income of Family :</label>
+                                    <input type="text" formControlName="monthlyIncomeOfFamily" class="form-control" maxlength="6" numbersOnly [readonly]="isView=='Y'">
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Background Details</legend>
+                        <div class="row" formGroupName="clientMasterBean">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Religion :</label>
+                                    <select class="form-control" formControlName="religionId" (change)="setReligionIfOth($event)">
+                                        <!-- <option value="0">Select</option> -->
+                                        <option *ngFor="let d of religionList" [value]="d.categoryAttributeId">
+                                            {{d.attrDesc}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6" *ngIf="showReligionOth">
+                                <div class="form-group">
+                                    <label>Religion (If Others) :</label>
+                                    <input type="text" formControlName="religionIfOth" class="form-control" [readonly]="isView=='Y'" maxlength="200">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Mother Tongue :</label>
+                                    <input type="text" class="form-control" formControlName="motherTongue" [readonly]="isView=='Y'" maxlength="30">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Other Languages Known :</label>
+                                    <input type="text" class="form-control" formControlName="othLangKnown" [readonly]="isView=='Y'" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Education Level :</label>
+                                    <select class="form-control" formControlName="educationLevel">
+                                        <option *ngFor="let d of educationList" [value]="d.categoryAttributeId">
+                                            {{d.attrDesc}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Any other information :</label>
+                                    <textarea class="form-control" style="height: 100px !important;" formControlName="othInformation" [readonly]="isView=='Y'"
+                                        maxlength="200"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-right">
+                            <button class="btn btn-sm btn-blue mr-2" type="button" (click)="openPrev()">
+                                << Previous</button>
+                                    <button class="btn btn-sm btn-blue" type="button" (click)="openNext()">Next >></button>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab [disabled]="intakeForm.invalid">
+                    <p-header>
+                        Health Information
+                    </p-header>
+                    <!-- <div class="accordion-header-btn text-right">
+                        <button class="btn btn-sm btn-white mr-2" type="button" (click)="openPrev()"> << Previous</button>
+                        <button class="btn-custom btn-sm btn-white" type="button" (click)="openNext()">Next >></button>
+                    </div> -->
+                    <fieldset>
+                        <!-- <legend>Initial Medical Details</legend> -->
+                        <div class="row" formGroupName="clientInitMedicalDetBean">
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Provisional Diagnosis :</label>
+                                    <input type="text" formControlName="provisionalDiagnosis" class="form-control" [readonly]="isView=='Y'" maxlength="200">
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Co-morbidity :</label>
+                                    <input type="text" formControlName="comorbidity" class="form-control" [readonly]="isView=='Y'" maxlength="100">
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label> Diagnosis Grouping :</label>
+                                    <select formControlName="diagnosisGroup" class="form-control" (change)="setDiagnosisGroupIfOth($event)">
+                                        <option *ngFor="let d of diagnosisList" [value]="d.categoryAttributeId">
+                                            {{d.attrDesc}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6" *ngIf="showDiagnosisGroupOth">
+                                <div class="form-group">
+                                    <label>Diagnosis Grouping (If Others) :</label>
+                                    <input type="text" formControlName="diagnosisGroupIfOth" class="form-control" [readonly]="isView=='Y'" maxlength="200">
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <div class="form-group">
+                                    <label>Any other medical conditions found :</label>
+                                    <textarea class="form-control" style="height: 100px !important;" formControlName="othMedicalConditionFound" [readonly]="isView=='Y'" maxlength="100"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>BMI Test</legend>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="table-responsive healthData">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <td>
+                                                    <label>
+                                                        Date of Administration
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label>Weight
+                                                        <small>(in KGs)</small>
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label>Height
+                                                        <small>(in Meters)</small>
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label>Blood Pressure
+                                                        <small>(Systolic/Diastolic)</small>
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label>BMI Score</label>
+                                                </td>
+                                                <td>
+                                                    <label>BMI Class</label>
+                                                </td>
+
+
+
+                                            </tr>
+                                        </thead>
+                                        <tbody formGroupName="clientBMIBean">
+                                            <tr>
+                                                <td>
+                                                    <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                        class="form-control date" [minDate]="doe"  [maxDate]="maxDate"  (bsValueChange)="setCohortYear($event, 'clientBMIBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" formControlName="weight" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="7"
+                                                        #w (blur)="calculateBMI(w.value, h.value);checkDoA('bmi', w.value)">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" formControlName="height" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="7"
+                                                        #h (blur)="calculateBMI(w.value, h.value);checkDoA('bmi', h.value)">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" formControlName="bp" #b (blur)="checkBPFormat(b.value);checkDoA('bmi', b.value)" [readonly]="isView=='Y'" maxlength="7">
+                                                    <span class="validation-error">
+                                                        {{bpErrMsg}}
+                                                    </span>
+                                                    <!-- <p-inputMask formControlName="bp"  mask="999/999"></p-inputMask> -->
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" formControlName="bmi" readonly tabindex="-1">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" [value]="bmiClassStr" readonly tabindex="-1">
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-right">
+                            <button class="btn btn-sm btn-blue mr-2" type="button" (click)="openPrev()">
+                                << Previous</button>
+                                    <button class="btn btn-sm btn-blue" type="button" (click)="openNext()">Next >></button>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab [disabled]="intakeForm.invalid">
+                    <p-header>
+                        Psychometric Test
+                    </p-header>
+                    <!-- <div class="accordion-header-btn text-right">
+                        <button class="btn btn-sm btn-white mr-2" type="button" (click)="openPrev()"> << Previous</button>
+                        <button class="btn-custom btn-sm btn-white" type="button" (click)="openNext()">Next >></button>
+                    </div> -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>IDEAS<small>(Indian Disability Evaluation and Assessment Scale)</small></legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td style="width: 200px;">
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>SC
+                                                                <small>(Self Care)</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>IA
+                                                                <small>(Interpersonal Activities)</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>C&U
+                                                                <small>(Communication & Understanding)</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>W
+                                                                <small>(Work)</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>DOI
+                                                                <small>(Duration of Illness)</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>GIS
+                                                                <small>(Global Disability Score()</small> </label>
+                                                    </td>
+
+                                                    <!-- <td>
+                                                        <label>
+                                                            <strong>GIS (Total)</strong>
+                                                        </label>
+                                                    </td> -->
+
+                                                </tr>
+                                            </thead>
+                                            <tbody formGroupName="clientPsychoIdeasBean">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date" [minDate]="doe"  [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientPsychoIdeasBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                            
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="sc" numbersOnly [readonly]="isView=='Y'" maxlength="5"
+                                                            (blur)="calculateGIS();checkDoA('ideas', scValue.value)" #scValue (keyup)="validateField(scValue.value, 'sc')">
+                                                            <span class="validation-error">{{scErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="ia" numbersOnly [readonly]="isView=='Y'" maxlength="5"
+                                                            (blur)="calculateGIS();checkDoA('ideas', iaValue.value)" #iaValue (keyup)="validateField(iaValue.value, 'ia')">
+                                                            <span class="validation-error">{{iaErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="c_and_u" numbersOnly [readonly]="isView=='Y'" maxlength="5"
+                                                            (blur)="calculateGIS();checkDoA('ideas', cuValue.value)" #cuValue (keyup)="validateField(cuValue.value, 'cu')">
+                                                            <span class="validation-error">{{cuErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="wrk" numbersOnly [readonly]="isView=='Y'" maxlength="5"
+                                                            (blur)="calculateGIS();checkDoA('ideas', wValue.value)" #wValue (keyup)="validateField(wValue.value, 'w')">
+                                                            <span class="validation-error">{{wErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="doi" numbersOnly [readonly]="isView=='Y'" maxlength="5"
+                                                            (blur)="calculateGIS();checkDoA('ideas', doiValue.value)" #doiValue (keyup)="validateField(doiValue.value, 'doi')">
+                                                            <span class="validation-error">{{doiErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="gis" readonly tabindex="-1">
+                                                    </td>
+                                                    <!-- <td>
+                                                        <input type="text" class="form-control" formControlName="gis" readonly>
+                                                    </td> -->
+
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>PANSS<small>(Positive and Negative Syndrome Scale)</small></legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>PS
+                                                                <small>(Positive Scale)</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>NS
+                                                                <small>(Negative Scale()</small></label>
+                                                    </td>
+                                                    <td>
+                                                        <label>GP
+                                                                <small>(General Psychopathology)</small></label>
+                                                    </td>
+
+                                                    <!-- <td>
+                                                        <label>
+                                                            <strong>Total</strong>
+                                                        </label>
+                                                    </td> -->
+
+                                                </tr>
+                                            </thead>
+                                            <tbody formGroupName="clientPsychoPanss">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date"  [minDate]="doe" [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientPsychoPanss')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="ps" numbersOnly 
+                                                        [readonly]="isView=='Y'" maxlength="5" #psValue (blur)="validateField(psValue.value, 'ps');checkDoA('panss', psValue.value)">
+                                                        <span class="validation-error">{{psErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="ns" numbersOnly 
+                                                        [readonly]="isView=='Y'" maxlength="5" #nsValue (blur)="validateField(nsValue.value, 'ns');checkDoA('panss', nsValue.value)">
+                                                        <span class="validation-error">{{nsErrMsg}}</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="gp" numbersOnly 
+                                                        [readonly]="isView=='Y'" maxlength="5" #gpValue (blur)="validateField(gpValue.value, 'gp');checkDoA('panss', gpValue.value)">
+                                                        <span class="validation-error">{{gpErrMsg}}</span>
+                                                    </td>
+
+                                                    <!-- <td>
+                                                        <input type="text" class="form-control" formControlName="total" readonly>
+                                                    </td> -->
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>GAF<small>(Global Assessment of Functioning)</small></legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>GAF
+                                                                <small>(Global Assessment of Functioning)</small> Score</label>
+                                                    </td>
+                                                    <!-- <td>
+                                                        <label>GAF Score</label>
+                                                    </td> -->
+
+                                                </tr>
+                                            </thead>
+                                            <tbody formGroupName="clientPsychoGafBean">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date" [minDate]="doe"  [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientPsychoGafBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                    </td>
+                                                    <td>
+                                                        <!-- <input type="text" class="form-control" formControlName="gafScore" numbersOnly [readonly]="isView=='Y'" maxlength="5"> -->
+                                                        <!-- <select class="form-control" formControlName="gafScore">
+                                                            <option value="0">0</option>
+                                                            <option value="0-10">0-10</option>
+                                                            <option value="11-20">11-20</option>
+                                                            <option value="21-30">21-30</option>
+                                                            <option value="31-40">31-40</option>
+                                                            <option value="41-50">41-50</option>
+                                                            <option value="51-60">51-60</option>
+                                                            <option value="61-70">61-70</option>
+                                                            <option value="71-80">71-80</option>
+                                                            <option value="81-90">81-90</option>
+                                                            <option value="91-100">91-100</option>
+                                                        </select> -->
+                                                        <select formControlName="gafScore" class="form-control" #gaf (blur)="checkDoA('gaf', gaf.value)">
+                                                            <option *ngFor="let g of gafScoreList" [value]="g.categoryAttributeId">
+                                                                {{g.attrDesc}}
+                                                            </option>
+                                                        </select>
+                                                    </td>
+                                                    <!-- <td>
+                                                        <input type="text" class="form-control" formControlName="gafClass" numbersOnly [readonly]="isView=='Y'" maxlength="5">
+                                                    </td> -->
+
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>LSP<small>(Life Skills Profile)</small></legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>LSP
+                                                                <small>(Life Skills Profile)</small> Score</label>
+                                                    </td>
+                                                    <!-- <td>
+                                                        <label>LSP Class</label>
+                                                    </td> -->
+
+                                                </tr>
+                                            </thead>
+
+
+                                            <tbody formGroupName="clientPsychoLspBean">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date" [minDate]="doe"  [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientPsychoLspBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="lspScore" numbersOnly 
+                                                        [readonly]="isView=='Y'" maxlength="5" #lspScoreValue (blur)="validateField(lspScoreValue.value, 'lspScore');checkDoA('lsp', lspScoreValue.value)">
+                                                        <span class="validation-error">{{lspErrMsg}}</span>
+                                                    </td>
+                                                    <!-- <td>
+                                                        <input type="text" class="form-control" formControlName="lspClass" numbersOnly [readonly]="isView=='Y'" maxlength="5">
+                                                    </td> -->
+
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-right">
+                            <button class="btn btn-sm btn-blue mr-2" type="button" (click)="openPrev()">
+                                << Previous</button>
+                                    <button class="btn btn-sm btn-blue" type="button" (click)="openNext()">Next >></button>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab [disabled]="intakeForm.invalid">
+                    <p-header>
+                        Pathological Test
+                    </p-header>
+                    <!-- <div class="accordion-header-btn text-right">
+                        <button class="btn btn-sm btn-white mr-2" type="button" (click)="openPrev()"> << Previous</button>
+                        <button class="btn-custom btn-sm btn-white" type="button" (click)="openNext()">Next >></button>
+                    </div> -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>Thyroid Significance</legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>TSH
+                                                            <small>(in uIU/ml)</small>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>T3
+                                                            <small>(in pg/ml)</small>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>T4
+                                                            <small>(in mg/dl)</small>
+                                                        </label>
+                                                    </td>
+
+
+
+                                                </tr>
+                                            </thead>
+
+                                            <tbody formGroupName="clientThyroidSignificanceBean">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date" [minDate]="doe"  [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientThyroidSignificanceBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="thyroTsh" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #tsh (blur)="checkDoA('thyro', tsh.value)">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="thyroT3" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #t3 (blur)="checkDoA('thyro', t3.value)">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="thyroT4" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #t4 (blur)="checkDoA('thyro', t4.value)">
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>Diabetes Significance</legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>RBS
+                                                            <small>(in mg/dl)</small>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>FBS
+                                                            <small>(in mg/dl)</small>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>PPBS
+                                                            <small> (in gm/dl)</small>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </thead>
+                                            <tbody formGroupName="clientDiabetesSignificanceBean">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date" [minDate]="doe"  [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientDiabetesSignificanceBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="diabetesRBS" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #rbs (blur)="checkDoA('diabetes', rbs.value)">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="diabetesFBS" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #fbs (blur)="checkDoA('diabetes', fbs.value)">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="diabetesPPBS" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #ppbs (blur)="checkDoA('diabetes', ppbs.value)">
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <fieldset>
+                                    <legend>Other Blood Tests</legend>
+                                    <div class="table-responsive healthData">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        <label>Date of Administration</label>
+                                                    </td>
+                                                    <td>
+                                                        <label>Hemoglobin
+                                                            <small>(in gm/dl)</small>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label>ESR
+                                                            <small>(in mm/hr)</small>
+                                                        </label>
+                                                    </td>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody formGroupName="clientHemoglobinSignificanceBean">
+                                                <tr>
+
+                                                    <td>
+                                                        <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                            class="form-control date" [minDate]="doe"  [maxDate]="maxDate" (bsValueChange)="setCohortYear($event, 'clientHemoglobinSignificanceBean')" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="hbPercent" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #hb (blur)="checkDoA('blood', hb.value)">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control" formControlName="esr" twoDigitDecimaNumber [readonly]="isView=='Y'" maxlength="10" #esrVal (blur)="checkDoA('blood', esrVal.value)">
+                                                    </td>
+                                                    <!-- <td>
+                                                        <input type="text" class="form-control" formControlName="hemoglobinLevel" numbersOnly [readonly]="isView=='Y'" maxlength="10">
+                                                    </td> -->
+
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="row" formGroupName="clientHemoglobinSignificanceBean">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        <label>Any other lab tests :</label>
+                                        <!-- <input type="text" class="form-control" formControlName="othLabTest" [readonly]="isView=='Y'" maxlength="200"> -->
+                                        <textarea class="form-control" style="height: 100px !important;" formControlName="othLabTest" [readonly]="isView=='Y'" maxlength="200"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-4">
+                                    <div class="form-group">
+                                        <label>Date of Administration :</label>
+                                        <input type="text" formControlName="othDateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                            class="form-control date" [minDate]="doe" [maxDate]="maxDate" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-right">
+                            <button class="btn btn-sm btn-blue mr-2" type="button" (click)="openPrev()">
+                                << Previous</button>
+                                    <button class="btn btn-sm btn-blue" type="button" (click)="openNext()">Next >></button>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab [disabled]="intakeForm.invalid" *ngIf="clientId!=null">
+                    <p-header>
+                        Exit Information
+                    </p-header>
+                    <!-- <div class="accordion-header-btn text-right">
+                        <button class="btn btn-sm btn-white mr-2" type="button" (click)="openPrev()"> << Previous</button>
+                        <button class="btn-custom btn-sm btn-white" type="button" (click)="openNext()">Next >></button>
+                    </div> -->
+                    <div class="row" formGroupName="clientMasterBean">
+                        <div class="col-lg-3 col-md-4">
+                            <div class="form-group">
+                                <label>Exit Date :</label>
+                                <input type="text" formControlName="exitDate" placeholder="DD-MM-YYYY" [minDate]="intakeForm.controls.clientMasterBean.value.dateOfEntry" [maxDate]="maxDate" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }" (bsValueChange)="setDurationOfStay($event)"
+                                    class="form-control date" #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4">
+                            <div class="form-group">
+                                <label>Exit Status :</label>
+                                <select class="form-control" formControlName="exitStatus" (change)="setExitStatusIfOth($event)">
+                                    <option *ngFor="let d of exitStatusList" [value]="d.categoryAttributeId">
+                                        {{d.attrDesc}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4" *ngIf="showExitStatusOth">
+                            <div class="form-group">
+                                <label>Exit Status (If Others) :</label>
+                                <input type="text" formControlName="exitStatusIfOth" class="form-control" [readonly]="isView=='Y'" maxlength="200">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4">
+                            <div class="form-group">
+                                <label>Exit Remarks :</label>
+                                <input type="text" class="form-control" formControlName="exitRemarks" [readonly]="isView=='Y'" maxlength="2000">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4">
+                            <div class="form-group">
+                                <label>Duration of Stay :</label>
+                                <input type="text" class="form-control" formControlName="durationOfStay" numbersOnly [readonly]="isView=='Y'" maxlength="5">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-right">
+                            <button class="btn btn-sm btn-blue mr-2" type="button" (click)="openPrev()">
+                                << Previous</button>
+                                    <button class="btn btn-sm btn-blue" type="button" (click)="openNext()">Next >></button>
+                        </div>
+                    </div>
+                </p-accordionTab>
+                <p-accordionTab [disabled]="intakeForm.invalid">
+                    <p-header>
+                        Administrator
+                    </p-header>
+                    <!-- <div class="accordion-header-btn text-right">
+                        <button class="btn btn-sm btn-white mr-2" type="button" (click)="openPrev()"> << Previous</button>
+                        <button class="btn-custom btn-sm btn-white" type="button" (click)="saveIntakeForm()" [hidden]="isView=='Y'">Submit</button>
+                    </div> -->
+                    <div class="row" formGroupName="clientIntakeAdministrationBean">
+                        <div class="col-lg-3 col-md-4">
+                            <div class="form-group">
+                                <label>Caregiver Name :</label>
+                                <input type="text" class="form-control" formControlName="caregiverName" [readonly]="isView=='Y'" maxlength="100">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+
+                            <table class="table table-condensed">
+                                <tr>
+                                    <td>
+                                        <div class="form-group">
+                                            <label>Name of Doctor</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" formControlName="doctorSignature" [readonly]="isView=='Y'" maxlength="100">
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <label>Date</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" formControlName="doctorSignatureDate" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                            class="form-control date" [minDate]="doe" [maxDate]="maxDate"  #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="form-group">
+                                            <label>Name of Counsellor/Social Worker</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" formControlName="counsellorSwName" [readonly]="isView=='Y'" maxlength="100">
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <label>Date</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" formControlName="counsellorSignDate" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                            class="form-control date" [minDate]="doe" [maxDate]="maxDate"  #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="form-group">
+                                            <label>Name of Co-ordinator</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" formControlName="coordinatorName" [readonly]="isView=='Y'" maxlength="100">
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <label>Date</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" formControlName="coordinatorSignDate" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                            class="form-control date" [minDate]="doe" [maxDate]="maxDate"  #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'">
+
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Remarks(if any) :</label>
+                                <textarea class="form-control" style="height: 100px !important;" formControlName="remarks" [readonly]="isView=='Y'" maxlength="500"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12 text-right">
+                            <button class="btn btn-sm btn-blue mr-2" type="button" (click)="openPrev()">
+                                << Previous</button>
+                                    <button class="btn btn-sm btn-red" type="button" (click)="saveIntakeForm('submit')">Submit</button>
+                        </div>
+                    </div>
+                </p-accordionTab>
+            </p-accordion>
+        </ng-container>
+
+        <ng-container *ngIf="isView=='Y'">
+            <div class="card clientView" *ngIf="clientView!=null">
+                <div class="card-body">
+                    <h4 class="view-header">General Information</h4>
+                    <div class="row">
+                        <div [ngClass]="profilePhoto=='' && imgURL==''?'col-md-12':'col-md-9'">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h3 class="text-uppercase">{{clientView.clientMasterBean.clientName}}
+                                        <small>
+                                            <b>(UID : </b>
+                                            {{clientView.clientMasterBean.clientUid}})
+                                        </small>
+                                    </h3>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <h6>
+                                        <b>Age/Sex : </b>
+                                        {{clientView.clientMasterBean.age==null?"N/A":clientView.clientMasterBean.age}} / {{clientView.clientMasterBean.sexStr==null?"N/A":clientView.clientMasterBean.sexStr}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <h6>
+                                        <b>Age Class : </b>
+                                        {{clientView.clientMasterBean.age==null?"N/A":ageClass}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <h6>
+                                        <b>Date of Entry : </b>
+                                        {{clientView.clientMasterBean.dateOfEntry==null?"N/A":(clientView.clientMasterBean.dateOfEntry | date:'dd-MM-yyy')}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <h6>
+                                        <b>Cohort Year : </b>
+                                        {{clientView.clientMasterBean.cohortYear==null?"N/A":clientView.clientMasterBean.cohortYear}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    <h6>
+                                        <b>Type of Entry : </b>
+                                        {{clientView.clientMasterBean.typeOfEntry==null?"N/A":clientView.clientMasterBean.typeOfEntryStr}}
+                                    </h6>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <fieldset class="mt-2">
+                                        <legend>Finding Details</legend>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Found In Area : </b>
+                                                {{clientView.clientMasterBean.foundInArea==null?"N/A":clientView.clientMasterBean.foundInArea}}
+                                            </h6>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Ward No. : </b>
+                                                {{clientView.clientMasterBean.wardNo==null?"N/A":clientView.clientMasterBean.wardNo}}
+                                            </h6>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Police Station. : </b>
+                                                {{clientView.clientMasterBean.policeStation==null?"N/A":clientView.clientMasterBean.policeStation}}
+                                            </h6>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Landmark. : </b>
+                                                {{clientView.clientMasterBean.landmark==null?"N/A":clientView.clientMasterBean.landmark}}
+                                            </h6>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-lg-6">
+                                    <fieldset class="mt-2">
+                                        <legend>Reference Details</legend>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Referred By : </b>
+                                                {{clientView.clientMasterBean.referredBy==null?"N/A":clientView.clientMasterBean.referredByStr}}
+                                            </h6>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Referred Description. : </b>
+                                                {{clientView.clientMasterBean.referredDesc==null?"N/A":clientView.clientMasterBean.referredDesc}}
+                                            </h6>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Reference No.. : </b>
+                                                {{clientView.clientMasterBean.referenceNo==null?"N/A":clientView.clientMasterBean.referenceNo}}
+                                            </h6>
+                                        </div>
+
+                                    </fieldset>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6>
+                                        <b>Indentification Date : </b>
+                                        {{clientView.clientMasterBean.dateOfIdentification==null?"N/A":(clientView.clientMasterBean.dateOfIdentification | date:'dd-MM-yyy')}}
+                                    </h6>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6>
+                                        <b>Indentification Marks : </b>
+                                        {{clientView.clientMasterBean.identificationMark==null?"N/A":clientView.clientMasterBean.identificationMark}}
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div *ngIf="isEdit">
+                                <div style="background-image: url(assets/images/profile.png);" *ngIf="profilePhoto=='' && imgURL==''"></div>
+                                <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !=='' && imgURL!=null"  width="200" height="200" class="rounded-circle ee">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="view-header mt-4">Address & Family Information</h4>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <fieldset>
+                                <legend>Address Details</legend>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Gram Panchayet/Mouza : </b>
+                                        {{clientView.clientAddressBean.gramPanchayatMouza==null?"N/A":clientView.clientAddressBean.gramPanchayatMouza}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Para/Village : </b>
+                                        {{clientView.clientAddressBean.paraVillage==null?"N/A":clientView.clientAddressBean.paraVillage}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Police Station/Post Office : </b>
+                                        {{clientView.clientAddressBean.policeStation==null?"N/A":clientView.clientAddressBean.policeStation}} / {{clientView.clientAddressBean.postOffice==null?"N/A":clientView.clientAddressBean.postOffice}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>District/Pin : </b>
+                                        {{clientView.clientAddressBean.district==null?"N/A":clientView.clientAddressBean.district}} / {{clientView.clientAddressBean.pinNo==null?"N/A":clientView.clientAddressBean.pinNo}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>State/Country : </b>
+                                        {{clientView.clientAddressBean.state==null?"N/A":clientView.clientAddressBean.state}} / {{clientView.clientAddressBean.country==null?"N/A":clientView.clientAddressBean.country}}
+                                    </h6>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                        <div class="col-lg-6">
+                            <fieldset>
+                                <legend>Family/Guardian Details</legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Guardian Name : </b>
+                                            {{clientView.clientFamilyBean.guardianName==null?"N/A":clientView.clientFamilyBean.guardianName}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Relationship : </b>
+                                            {{clientView.clientFamilyBean.relationWithGuardian==null?"N/A":clientView.clientFamilyBean.relationWithGuardianStr}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Address : </b>
+                                            {{clientView.clientFamilyBean.contactAddress==null?"N/A":clientView.clientFamilyBean.contactAddress}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Contact 1 : </b>
+                                            {{clientView.clientFamilyBean.contact1No==null?"N/A":clientView.clientFamilyBean.contact1No}}
+                                        </h6>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Contact 2 : </b>
+                                            {{clientView.clientFamilyBean.contact2No==null?"N/A":clientView.clientFamilyBean.contact2No}}
+                                        </h6>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Family Size : </b>
+                                            {{clientView.clientFamilyBean.familySize==null?"N/A":clientView.clientFamilyBean.familySize}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Occupation : </b>
+                                            {{clientView.clientFamilyBean.occupationOfFamily==null?"N/A":clientView.clientFamilyBean.occupationOfFamily}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Monthly income : </b>
+                                            {{clientView.clientFamilyBean.monthlyIncomeOfFamily==null?"N/A":clientView.clientFamilyBean.monthlyIncomeOfFamily}}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-lg-6">
+                            <fieldset>
+                                <legend>Background Details</legend>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Religion : </b>
+                                            {{clientView.clientMasterBean.religionId==null?"N/A":clientView.clientMasterBean.religionIdStr}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Education Level : </b>
+                                            {{clientView.clientMasterBean.educationLevel==null?"N/A":clientView.clientMasterBean.educationLevelStr}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Mother Tongue : </b>
+                                            {{clientView.clientMasterBean.motherTongue==null?"N/A":clientView.clientMasterBean.motherTongue}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Other Languages Known : </b>
+                                            {{clientView.clientMasterBean.othLangKnown==null?"N/A":clientView.clientMasterBean.othLangKnown}}
+                                        </h6>
+                                    </div>
+
+
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Any other information : </b>
+                                            {{clientView.clientMasterBean.othInformation==null?"N/A":clientView.clientMasterBean.othInformation}}
+                                        </h6>
+                                    </div>
+
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <h4 class="view-header mt-4">General Medical Information</h4>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <fieldset>
+                                <legend>Initial Medical Details</legend>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Provisional Diagnosis : </b>
+                                        {{clientView.clientInitMedicalDetBean.provisionalDiagnosis==null?"N/A":clientView.clientInitMedicalDetBean.provisionalDiagnosis}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Co-morbidity : </b>
+                                        {{clientView.clientInitMedicalDetBean.comorbidity==null?"N/A":clientView.clientInitMedicalDetBean.comorbidity}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Diagnosis Grouping : </b>
+                                        {{clientView.clientInitMedicalDetBean.diagnosisGroup==null?"N/A":clientView.clientInitMedicalDetBean.diagnosisGroupStr}}
+                                    </h6>
+                                </div>
+                                <div class="col-lg-12">
+                                    <h6>
+                                        <b>Any other medical conditions found : </b>
+                                        {{clientView.clientInitMedicalDetBean.othMedicalConditionFound==null?"N/A":clientView.clientInitMedicalDetBean.othMedicalConditionFound}}
+                                    </h6>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-lg-6">
+                            <fieldset>
+                                <legend>BMI Test</legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Date of Administration : </b>
+                                            {{clientView.clientBMIBean.dateOfEntry==null?"N/A":(clientView.clientBMIBean.dateOfEntry | date: 'dd-MM-yyyy')}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Weight (in KGs) : </b>
+                                            {{clientView.clientBMIBean.weight==null?"N/A":clientView.clientBMIBean.weight}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Height (in Meters) : </b>
+                                            {{clientView.clientBMIBean.height==null?"N/A":clientView.clientBMIBean.height}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Blood Pressure : </b>
+                                            {{clientView.clientBMIBean.bp==null?"N/A":clientView.clientBMIBean.bp}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>BMI Score : </b>
+                                            {{clientView.clientBMIBean.bmi==null?"N/A":clientView.clientBMIBean.bmi}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>BMI Class : </b>
+                                            {{clientView.clientBMIBean.bmiClass==null?"N/A":bmiClassStr}}
+                                        </h6>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <h4 class="view-header mt-4"  *ngIf="clientView.clientPsychoIdeasBean.dateOfEntry!=null || clientView.clientPsychoPanss.dateOfEntry!=null || clientView.clientPsychoLspBean.dateOfEntry!=null || clientView.clientPsychoGafBean.dateOfEntry!=null"> Psychometric Test </h4>
+                    <div class="row">
+                        <div class="col-lg-6" *ngIf="clientView.clientPsychoIdeasBean.dateOfEntry!=null">
+                            <fieldset class="type">
+                                <legend>IDEAS<small>(Indian Disability Evaluation and Assessment Scale)</small></legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                            <span class="header">Date of Administration: </span>
+                                            <span class="value">{{clientView.clientPsychoIdeasBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                    </div>
+                                    <div class="col-md-5">
+                                            <span class="header">SC
+                                                <small>(Self Care)</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoIdeasBean.sc==null?'N/A':clientView.clientPsychoIdeasBean.sc}}</span>
+                                        </div>
+                                    <div class="col-md-7">
+                                            <span class="header">IA
+                                                <small>(Interpersonal Activities)</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoIdeasBean.ia==null?'N/A':clientView.clientPsychoIdeasBean.ia}}</span>
+                                        </div>
+                                        <div class="col-md-5">
+                                                <span class="header">W
+                                                    <small>(Work)</small>: </span>
+                                                <span class="value">{{clientView.clientPsychoIdeasBean.wrk==null?'N/A':clientView.clientPsychoIdeasBean.wrk}}</span>
+                                            </div>
+                                        <div class="col-md-7">
+                                            <span class="header">C&U
+                                                <small>(Communication & Understanding)</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoIdeasBean.c_and_u==null?'N/A':clientView.clientPsychoIdeasBean.c_and_u}}</span>
+                                        </div>
+                                        
+                                        <div class="col-md-5">
+                                            <span class="header">DOI
+                                                <small>(Duration of Illness)</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoIdeasBean.doi==null?'N/A':clientView.clientPsychoIdeasBean.doi}}</span>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <span class="header">GIS
+                                                <small>(Global Disability Score()</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoIdeasBean.gis==null?'N/A':clientView.clientPsychoIdeasBean.gis}}</span>
+                                        </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-md-6" *ngIf="clientView.clientPsychoPanss.dateOfEntry!=null">
+                                <fieldset class="type">
+                                    <legend>PANSS
+                                        <small>(Positive and Negative Syndrome Scale)</small>
+                                    </legend>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <span class="header">Date of Administration: </span>
+                                            <span class="value">{{clientView.clientPsychoPanss.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <span class="header">PS
+                                                <small>(Positive Scale)</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoPanss.ps==null?'N/A':clientView.clientPsychoPanss.ps}}</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <span class="header">NS
+                                                <small>(Negative Scale()</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoPanss.ns==null?'N/A':clientView.clientPsychoPanss.ns}}</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <span class="header">GP
+                                                <small>(General Psychopathology)</small>: </span>
+                                            <span class="value">{{clientView.clientPsychoPanss.gp==null?'N/A':clientView.clientPsychoPanss.gp}}</span>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                            </div>
+                            <div class="col-md-6" *ngIf="clientView.clientPsychoLspBean.dateOfEntry!=null">
+                                <fieldset class="type">
+                                    <legend>LSP
+                                        <small>(Life Skills Profile)</small>
+                                    </legend>
+                                    <div>
+                                        <span class="header">Date of Administration: </span>
+                                        <span class="value">{{clientView.clientPsychoLspBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="header">LSP
+                                            <small>(Life Skills Profile)</small> Score: </span>
+                                        <span class="value">{{clientView.clientPsychoLspBean.lspScore==null?'N/A':clientView.clientPsychoLspBean.lspScore}}</span>
+                                    </div>
+                                </fieldset>
+
+                            </div>
+                            <div class="col-md-6" *ngIf="clientView.clientPsychoGafBean.dateOfEntry!=null">
+                                <fieldset class="type">
+                                    <legend>GAF
+                                        <small>(Global Assessment of Functioning)</small>
+                                    </legend>
+                                    <div>
+                                        <span class="header">Date of Administration: </span>
+                                        <span class="value">{{clientView.clientPsychoGafBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                    </div>
+                                    <div>
+                                        <span class="header">GAF
+                                            <small>(Global Assessment of Functioning)</small> Score:
+                                        </span>
+                                        <span class="value">{{clientView.clientPsychoGafBean.gafScore==null?'N/A':clientView.clientPsychoGafBean.gafScore}}</span>
+                                    </div>
+                                    </fieldset>
+                                    </div>
+                    </div>
+
+                    <h4 class="view-header mt-4"> Pathological Test </h4>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <fieldset>
+                                <legend>Thyroid Significance</legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Date of Administration : </b>
+                                            {{clientView.clientThyroidSignificanceBean.dateOfEntry==null?"N/A":clientView.clientThyroidSignificanceBean.dateOfEntry |
+                                            date: 'dd-MM-yyyy'}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>TSH
+                                                <small>(in uIU/ml)</small> : </b>
+                                            {{clientView.clientThyroidSignificanceBean.thyroTsh==null?"N/A":clientView.clientThyroidSignificanceBean.thyroTsh}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>T3
+                                                <small>(in pg/ml)</small> : </b>
+                                            {{clientView.clientThyroidSignificanceBean.thyroT3==null?"N/A":clientView.clientThyroidSignificanceBean.thyroT3}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>T4
+                                                <small>(in mg/dl)</small> : </b>
+                                            {{clientView.clientThyroidSignificanceBean.thyroT4==null?"N/A":clientView.clientThyroidSignificanceBean.thyroT4}}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <fieldset>
+                                <legend>Diabetes Significance</legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Date of Administration : </b>
+                                            {{clientView.clientDiabetesSignificanceBean.dateOfEntry==null?"N/A":clientView.clientDiabetesSignificanceBean.dateOfEntry
+                                            | date: 'dd-MM-yyyy'}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>RBS
+                                                <small>(in mg/dl)</small> : </b>
+                                            {{clientView.clientDiabetesSignificanceBean.diabetesRBS==null?"N/A":clientView.clientDiabetesSignificanceBean.diabetesRBS}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>FBS
+                                                <small>(in mg/dl)</small> : </b>
+                                            {{clientView.clientDiabetesSignificanceBean.diabetesFBS==null?"N/A":clientView.clientDiabetesSignificanceBean.diabetesFBS}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>PPBS
+                                                <small>(in gm/dl)</small> : </b>
+                                            {{clientView.clientDiabetesSignificanceBean.diabetesPPBS==null?"N/A":clientView.clientDiabetesSignificanceBean.diabetesPPBS}}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <fieldset>
+                                <legend>Other Blood Tests</legend>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Date of Administration : </b>
+                                            {{clientView.clientHemoglobinSignificanceBean.dateOfEntry==null?"N/A":clientView.clientHemoglobinSignificanceBean.dateOfEntry
+                                            | date: 'dd-MM-yyyy'}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>Hemoglobin
+                                                <small>(in gm/dl)</small> : </b>
+                                            {{clientView.clientHemoglobinSignificanceBean.hbPercent==null?"N/A":clientView.clientHemoglobinSignificanceBean.hbPercent}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <h6>
+                                            <b>ESR
+                                                <small>(in mm/hr)</small> : </b>
+                                            {{clientView.clientHemoglobinSignificanceBean.esr==null?"N/A":clientView.clientHemoglobinSignificanceBean.esr}}
+                                        </h6>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Any other lab tests
+                                                    <small>(in gm/dl)</small> : </b>
+                                                {{clientView.clientHemoglobinSignificanceBean.othLabTest==null?"N/A":clientView.clientHemoglobinSignificanceBean.othLabTest}}
+                                            </h6>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <h6>
+                                                <b>Date of Administration : </b>
+                                                {{clientView.clientHemoglobinSignificanceBean.othDateOfEntry==null?"N/A":clientView.clientHemoglobinSignificanceBean.othDateOfEntry
+                                                | date: 'dd-MM-yyyy'}}
+                                            </h6>
+                                        </div>
+        
+                                    </div>
+                            </fieldset>
+
+                            
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- <h4 class="view-header mt-4"> Exit Information </h4> -->
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <fieldset>
+                                <legend>Exit Information</legend>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Exit Date : : </b>
+                                            {{clientView.clientMasterBean.exitDate==null?"N/A":clientView.clientMasterBean.exitDate |
+                                            date: 'dd-MM-yyyy'}}
+                                        </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                    <h6>
+                                        <b>Exit Status : </b>
+                                        {{clientView.clientMasterBean.exitStatusStr==null?"N/A":clientView.clientMasterBean.exitStatusStr}}
+                                    </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                    <h6>
+                                        <b>Exit Remarks : </b>
+                                        {{clientView.clientMasterBean.exitRemarks==null?"N/A":clientView.clientMasterBean.exitRemarks}}
+                                    </h6>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h6>
+                                            <b>Duration of Stay : </b>
+                                            {{clientView.clientMasterBean.durationOfStay==null?"N/A":clientView.clientMasterBean.durationOfStay}}
+                                        </h6>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="col-lg-6">
+                                <fieldset>
+                                    <legend>Administrator</legend>
+                                    <div class="row">
+                                            <div class="col-lg-12">
+                                                <h6>
+                                                    <b>Caregiver Name : </b>
+                                                    {{clientView.clientIntakeAdministrationBean.caregiverName==null?"N/A":clientView.clientIntakeAdministrationBean.caregiverName}}
+                                                </h6>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                <h6>
+                                                    <b>Name of Doctor: </b>
+                                                    {{clientView.clientIntakeAdministrationBean.doctorSignature==null?"N/A":clientView.clientIntakeAdministrationBean.doctorSignature}}
+                                                </h6>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                <h6>
+                                                    <b>Date : </b>
+                                                    {{clientView.clientIntakeAdministrationBean.doctorSignatureDate==null?"N/A":clientView.clientIntakeAdministrationBean.doctorSignatureDate
+                                                    | date: 'dd-MM-yyyy'}}
+                                            
+                                                </h6>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                    <h6>
+                                                        <b>Name of Counsellor/Social Worker : </b>
+                                                        {{clientView.clientIntakeAdministrationBean.counsellorSwName==null?"N/A":clientView.clientIntakeAdministrationBean.counsellorSwName}}
+                                                    </h6>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <h6>
+                                                        <b>Date : </b>
+                                                        {{clientView.clientIntakeAdministrationBean.counsellorSignDate==null?"N/A":clientView.clientIntakeAdministrationBean.counsellorSignDate
+                                                        | date: 'dd-MM-yyyy'}}
+                                                
+                                                    </h6>
+                                                </div>
+                                                <div class="col-lg-8">
+                                                        <h6>
+                                                            <b>Name of Co-ordinator : </b>
+                                                            {{clientView.clientIntakeAdministrationBean.coordinatorName==null?"N/A":clientView.clientIntakeAdministrationBean.coordinatorName}}
+                                                        </h6>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <h6>
+                                                            <b>Date : </b>
+                                                            {{clientView.clientIntakeAdministrationBean.coordinatorSignDate==null?"N/A":clientView.clientIntakeAdministrationBean.coordinatorSignDate
+                                                            | date: 'dd-MM-yyyy'}}
+                                                    
+                                                        </h6>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                            <h6>
+                                                                <b>Remarks : </b>
+                                                                {{clientView.clientIntakeAdministrationBean.remarks==null?"N/A":clientView.clientIntakeAdministrationBean.remarks}}
+                                                            </h6>
+                                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                    </div>
+
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</form>

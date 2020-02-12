@@ -1,0 +1,60 @@
+<!-- <nav class="navbar navbar-expand-lg fixed-top topnav shadow">
+    <button id="menu-toggle" class="d-sm-block btn btn-link rounded-circle">
+      <i class="fa fa-bars color-white"></i>
+    </button>
+    <a class="navbar-brand" href="#">
+      <img src="assets/images/logo.png" class="d-inline-block align-top" alt="Company Logo" style="width:136px;">
+      
+    </a>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="javascript:void(0);" id="adminDropdown" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <h6 class="mr-2 d-none d-lg-inline color-white">Welcome, {{userName}}</h6>
+          <a href="javascript:void(0);" class="color-white" (click)="logOut()">
+            <i class="fa fa-sign-out mr-2"></i>
+            Logout
+          </a>
+        </a>
+        
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="adminDropdown">
+          <a class="dropdown-item" href="#">
+            <i class="fa fa-user mr-2"></i>
+            Profile
+          </a>
+
+          <div class="dropdown-divider"></div>
+          <a href="javascript:void(0);" (click)="logOut()">
+            <i class="fa fa-sign-out mr-2"></i>
+            Logout
+          </a>
+        </div>
+      </li>
+    </ul>
+  </nav> -->
+
+<!--bitan 30102019-->
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+<nav class="header">
+  <div class="row m-2">
+    <div class="col-4">
+      <img src="assets/images/logo.png" class="d-inline-block ml-4" alt="Company Logo" style="width:136px;">
+    </div>
+    <div class="col-4 text-center">
+        <h1 *ngIf="user.homeId==1" class="pageHeading color-white">Sarbari Programme</h1>
+        <h1 *ngIf="user.homeId==2" class="pageHeading color-white">Marudyan Programme</h1>
+    </div>
+    <div class="col-4 text-right">
+      <h6 class="mr-2 d-sm-inline">
+        <a href="javascript:void(0);" class="color-white" (click)="backToDashboard()">
+          <i class="fa fa-home" tooltip="Back to Dashboard" container="body"></i>
+        </a>
+      </h6>
+      <h6 class="mr-2 d-none d-md-inline color-white">Welcome {{userName}}</h6>
+      <!-- <a href="javascript:void(0);" (click)="logOut()" class="btn btn-danger btn-sm">Logout</a> -->
+      <a href="javascript:void(0);" title="Log out" class="color-white ml-2" style="font-size: 15px;" (click)="logOut()">
+          <i class="fa fa-power-off" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</nav>

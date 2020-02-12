@@ -1,0 +1,720 @@
+<div class="page-head">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="pageHeading">Client Health - Psychometry Test</h1>
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="button" class="btn-custom btn-red mr-2" (click)="resetScreen()" *ngIf="clientView">Reset</button>
+            <button type="button" class="btn-custom btn-red mr-2" (click)="openExportDialog()">Export All</button>
+        </div>
+    </div>
+</div>
+<div class="sub-content">
+    <form [formGroup]="searchClientForm">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client UID :</label>
+                        <!-- <input type="text" formControlName="clientId" class="form-control"> -->
+                        <div>
+                            <p-autoComplete [suggestions]="clientUIDList" placeholder="Type Client UID" (onSelect)="setClientUID($event)" [minLength]="1"
+                                #clientID (completeMethod)="getclientUIDList($event)" formControlName="clientUID" (onKeyUp)="manageUIDValue(clientID.value)">
+                                <ng-template let-results pTemplate="item">
+                                    <span>{{results.clientUid}}</span>
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client Name :</label>
+                        <!-- <input type="text" formControlName="clientId" class="form-control"> -->
+                        <div>
+                            <p-autoComplete [suggestions]="clientNameList" placeholder="Type Client Name" (onSelect)="setClientName($event)" [minLength]="1"
+                                #clientN (completeMethod)="getClientNameList($event)" formControlName="clientName" (onKeyUp)="manageNameValue(clientN.value)">
+                                <ng-template let-results pTemplate="item">
+                                    <span>{{results.clientName}} (
+                                        <b>{{results.clientUid}}</b>) </span>
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="col-md-12 text-center">
+                    <button type="button" class="btn-custom btn-red mr-2" (click)="searchClientList()">Search</button>
+                    <button type="button" class="btn-custom btn-blue" (click)="resetForm()">Reset</button>
+                </div> -->
+            </div>
+        </fieldset>
+    </form>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card client-view" *ngIf="clientView">
+                <div class="card-body">
+                    <div class="text-center">
+                        <img src="assets/images/profile.png" *ngIf="profilePhoto == ''" width="100" height="100" class="rounded-circle ee">
+
+                        <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !==''" width="100" height="100" class="rounded-circle ee">
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-uppercase">{{clientView.clientMasterBean.clientName}}
+                            <br>
+                            <small>
+                                <b>(UID : </b>
+                                {{clientView.clientMasterBean.clientUid}})
+                            </small>
+                        </h4>
+                        <h6>
+                            <b>Age/Sex : </b>
+                            {{clientView.clientMasterBean.age==null?"N/A":clientView.clientMasterBean.age}} / {{clientView.clientMasterBean.sexStr==null?"N/A":clientView.clientMasterBean.sexStr}}
+                        </h6>
+                        <h6>
+                            <b>Date of Entry : </b>
+                            {{clientView.clientMasterBean.dateOfEntry==null?"N/A":(clientView.clientMasterBean.dateOfEntry | date:'dd-MM-yyy')}}
+                        </h6>
+                        <fieldset class="mt-2 text-left">
+                            <legend>Finding Details</legend>
+
+                            <p>
+                                <b>Found In Area : </b>
+                                {{clientView.clientMasterBean.foundInArea==null?"N/A":clientView.clientMasterBean.foundInArea}}
+                            </p>
+
+                            <p>
+                                <b>Ward No. : </b>
+                                {{clientView.clientMasterBean.wardNo==null?"N/A":clientView.clientMasterBean.wardNo}}
+                            </p>
+
+                            <p>
+                                <b>Police Station. : </b>
+                                {{clientView.clientMasterBean.policeStation==null?"N/A":clientView.clientMasterBean.policeStation}}
+                            </p>
+
+                            <p>
+                                <b>Landmark. : </b>
+                                {{clientView.clientMasterBean.landmark==null?"N/A":clientView.clientMasterBean.landmark}}
+                            </p>
+
+                        </fieldset>
+                        <fieldset class="mt-2 text-left">
+                            <legend>IDEAS
+                                <small>(Indian Disability Evaluation and Assessment Scale)</small>
+                            </legend>
+                            <div class="row no-gutters">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">SC
+                                        <small>(Self Care)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.sc==null?'N/A':clientView.clientPsychoIdeasBean.sc}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">IA
+                                        <small>(Interpersonal Activities)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.ia==null?'N/A':clientView.clientPsychoIdeasBean.ia}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">C&U
+                                        <small>(Communication & Understanding)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.c_and_u==null?'N/A':clientView.clientPsychoIdeasBean.c_and_u}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">W
+                                        <small>(Work)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.wrk==null?'N/A':clientView.clientPsychoIdeasBean.wrk}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">DOI
+                                        <small>(Duration of Illness)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.doi==null?'N/A':clientView.clientPsychoIdeasBean.doi}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">GIS
+                                        <small>(Global Disability Score()</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoIdeasBean.gis==null?'N/A':clientView.clientPsychoIdeasBean.gis}}</span>
+                                </div>
+                            </div>
+
+                        </fieldset>
+
+                        <fieldset class="mt-2 text-left">
+                            <legend>PANSS
+                                <small>(Positive and Negative Syndrome Scale)</small>
+                            </legend>
+                            <div class="row no-gutters">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{clientView.clientPsychoPanss.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">PS
+                                        <small>(Positive Scale)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoPanss.ps==null?'N/A':clientView.clientPsychoPanss.ps}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">NS
+                                        <small>(Negative Scale()</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoPanss.ns==null?'N/A':clientView.clientPsychoPanss.ns}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">GP
+                                        <small>(General Psychopathology)</small>: </span>
+                                    <span class="value">{{clientView.clientPsychoPanss.gp==null?'N/A':clientView.clientPsychoPanss.gp}}</span>
+                                </div>
+                            </div>
+
+
+                        </fieldset>
+
+                        <fieldset class="mt-2 text-left">
+                            <legend>GAF
+                                <small>(Global Assessment of Functioning)</small>
+                            </legend>
+
+                            <p>
+                                <b>Date of Entry : </b>
+                                {{clientView.clientPsychoGafBean.dateOfEntry==null?"N/A":(clientView.clientPsychoGafBean.dateOfEntry | date: 'dd-MM-yyyy')}}
+                            </p>
+
+                            <p>
+                                <b>GAF Score : </b>
+                                {{clientView.clientPsychoGafBean.gafScoreStr==null?"N/A":(clientView.clientPsychoGafBean.gafScoreStr)}}
+                            </p>
+
+                        </fieldset>
+
+                        <fieldset class="mt-2 text-left">
+                            <legend>LSP
+                                <small>(Life Skills Profile)</small>
+                            </legend>
+
+                            <p>
+                                <b>Date of Entry : </b>
+                                {{clientView.clientPsychoLspBean.dateOfEntry==null?"N/A":(clientView.clientPsychoLspBean.dateOfEntry | date: 'dd-MM-yyyy')}}
+                            </p>
+
+                            <p>
+                                <b>LSP Score: </b>
+                                {{clientView.clientPsychoLspBean.lspScore==null?"N/A":(clientView.clientPsychoLspBean.lspScore)}}
+                            </p>
+
+                        </fieldset>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card" *ngIf="clientView">
+                <div class="card-body healthData">
+                    <div class="content table-responsive mt-2">
+
+                        <div *ngIf="!showClientPsychometryTestList && addEditTest">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="pageHeading" *ngIf="seqNo==null">Add Record</h3>
+                                    <h3 class="pageHeading" *ngIf="seqNo!=null">Edit Record</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <button class="btn btn-link  btn-sm mr-2" type="button" (click)="backToList()">Back to List</button>
+                                    <button type="button" class="btn-custom btn-sm btn-blue mr-2" (click)="addNewTest()" *ngIf="showClientPsychometryTestList || seqNo!=null">Add New</button>
+                                    <button type="button" class="btn-custom btn-sm btn-red mr-2" (click)="saveUpdateClientPsychometryTest()">Save</button>
+                                </div>
+                            </div>
+
+                            <form [formGroup]="psychometryForm">
+                                <div class="table-responsive">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>IDEAS<small>(Indian Disability Evaluation and Assessment Scale)</small></legend>
+                                                    <div class="row" formGroupName="clientPsychoIdeasBean">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Date of Administration</label>
+                                                                <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                            class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate" #dp="bsDatepicker"
+                                                                            placement="auto" [readonly]="isView=='Y'" (bsValueChange)="setCohortYear($event, 'clientPsychoIdeasBean')">
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>SC<small>(Self Care)</small></label>
+                                                                <input type="text" class="form-control" formControlName="sc" numbersOnly [readonly]="isView=='Y'" maxlength="5" (blur)="calculateGIS();checkDoA('ideas', scValue.value)"
+                                                                            #scValue (keyup)="validateField(scValue.value, 'sc')">
+                                                                        <span class="validation-error">{{scErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                    <label>IA<small>(Interpersonal Activities)</small></label>
+                                                                    <input type="text" class="form-control" formControlName="ia" numbersOnly [readonly]="isView=='Y'" maxlength="5" (blur)="calculateGIS();checkDoA('ideas', iaValue.value)"
+                                                                    #iaValue (keyup)="validateField(iaValue.value, 'ia')">
+                                                                <span class="validation-error">{{iaErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                    <label>C&U<small>(Communication & Understanding)</small></label>
+                                                                    <input type="text" class="form-control" formControlName="c_and_u" numbersOnly [readonly]="isView=='Y'" maxlength="5" (blur)="calculateGIS();checkDoA('ideas', cuValue.value)"
+                                                                    #cuValue (keyup)="validateField(cuValue.value, 'cu')">
+                                                                <span class="validation-error">{{cuErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                    <label>W<small>(Work)</small></label>
+                                                                    <input type="text" class="form-control" formControlName="wrk" numbersOnly [readonly]="isView=='Y'" maxlength="5" (blur)="calculateGIS();checkDoA('ideas', wValue.value)"
+                                                                    #wValue (keyup)="validateField(wValue.value, 'w')">
+                                                                <span class="validation-error">{{wErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                    <label>DOI<small>(Duration of Illness)</small></label>
+                                                                    <input type="text" class="form-control" formControlName="doi" numbersOnly [readonly]="isView=='Y'" maxlength="5" (blur)="calculateGIS();checkDoA('ideas', doiValue.value)"
+                                                                    #doiValue (keyup)="validateField(doiValue.value, 'doi')">
+                                                                <span class="validation-error">{{doiErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                        <label>GIS<small>(Global Disability Score)</small></label>
+                                                                        <input type="text" class="form-control" formControlName="gis" readonly tabindex="-1">
+                                                                </div>
+                                                            </div>
+                                                            
+                                                    </div>
+                                                    
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>PANSS<small>(Positive and Negative Syndrome Scale)</small></legend>
+                                                    <div class="row" formGroupName="clientPsychoPanss">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Date of Administration</label>
+                                                                <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                            class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate" #dp="bsDatepicker"
+                                                                            placement="auto" [readonly]="isView=='Y'" (bsValueChange)="setCohortYear($event, 'clientPsychoPanss')">
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>PS<small>(Positive Scale)</small></label>
+                                                                <input type="text" class="form-control" formControlName="ps" numbersOnly [readonly]="isView=='Y'" maxlength="5" #psValue
+                                                                (blur)="validateField(psValue.value, 'ps');checkDoA('panss', psValue.value)">
+                                                                 <span class="validation-error">{{psErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                    <label>NS<small>(Negative Scale)</small></label>
+                                                                    <input type="text" class="form-control" formControlName="ns" numbersOnly [readonly]="isView=='Y'" maxlength="5" #nsValue
+                                                                            (blur)="validateField(nsValue.value, 'ns');checkDoA('panss', nsValue.value)">
+                                                                        <span class="validation-error">{{nsErrMsg}}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                        <label>GP<small>(General Psychopathology)</small></label>
+                                                                        <input type="text" class="form-control" formControlName="gp" numbersOnly [readonly]="isView=='Y'" maxlength="5" #gpValue
+                                                                        (blur)="validateField(gpValue.value, 'gp');checkDoA('panss', gpValue.value)">
+                                                                    <span class="validation-error">{{gpErrMsg}}</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                    </div>
+                                                    
+                                                </fieldset>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>GAF<small>(Global Assessment of Functioning)</small></legend>
+                                                    <div class="row" formGroupName="clientPsychoGafBean">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label>Date of Administration</label>
+                                                                    <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                            class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate" #dp="bsDatepicker"
+                                                                            placement="auto" [readonly]="isView=='Y'" (bsValueChange)="setCohortYear($event, 'clientPsychoGafBean')">
+    
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label>GAF<small>(Global Assessment of Functioning)</small> Score</label>
+                                                                    <select formControlName="gafScore" class="form-control" #gaf (blur)="checkDoA('gaf', gaf.value)">
+                                                                            <option *ngFor="let g of gafScoreList" [value]="g.categoryAttributeId">
+                                                                                {{g.attrDesc}}
+                                                                            </option>
+                                                                        </select>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                                
+                                                        </div>
+                                                    
+                                                </fieldset>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <fieldset>
+                                                    <legend>LSP<small>(Life Skills Profile)</small></legend>
+                                                    <div class="row" formGroupName="clientPsychoLspBean">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label>Date of Administration</label>
+                                                                    <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                            class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate" #dp="bsDatepicker"
+                                                                            placement="auto" [readonly]="isView=='Y'" (bsValueChange)="setCohortYear($event, 'clientPsychoLspBean')">
+    
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label>LSP<small>(Life Skills Profile)</small> Score</label>
+                                                                    <input type="text" class="form-control" formControlName="lspScore" numbersOnly [readonly]="isView=='Y'" maxlength="5" #lspScoreValue
+                                                                    (blur)="validateField(lspScoreValue.value, 'lspScore');checkDoA('lsp', lspScoreValue.value)">
+                                                                    <span class="validation-error">{{lspErrMsg}}</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                                
+                                                        </div>
+                                                    
+                                                </fieldset>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-right">
+                                        <button type="button" class="btn-custom btn-sm btn-red mb-2" (click)="saveUpdateClientPsychometryTest()">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- <div class="text-center no-record" *ngIf="clientBMIList.length == 0">
+                                                    <h1>
+                                                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                    </h1>
+                                                    <h2>No data found for specified parameters.</h2>
+                                                </div> -->
+                        <div *ngIf="showClientPsychometryTestList">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="pageHeading" [hidden]="clientPsychometicTestList.length == 0 && !allowToAdd">Latest Psychometry Test records</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                        <button type="button" class="btn-custom btn-sm btn-blue mr-2" (click)="addNewTest()" *ngIf="showClientPsychometryTestList || seqNo!=null">Add New</button>
+                                </div>
+                            </div>
+                            <div class="text-center no-record" *ngIf="clientPsychometicTestList.length == 0 && !allowToAdd">
+                                <h1>
+                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                </h1>
+                                <h2>Please fill the Psychometry Test details in Intake Form.</h2>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card health-card-view mb-2" *ngFor="let c of clientPsychometicTestList | slice:pagination.first:pagination.last; let i = index">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-md-12" *ngIf="c.clientPsychoIdeasBean.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>IDEAS
+                                                                    <small>(Indian Disability Evaluation and Assessment Scale)</small>
+                                                                </legend>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <span class="header">Date of Administration: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <span class="header">SC
+                                                                            <small>(Self Care)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.sc==null?'N/A':c.clientPsychoIdeasBean.sc}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">IA
+                                                                            <small>(Interpersonal Activities)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.ia==null?'N/A':c.clientPsychoIdeasBean.ia}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-5">
+                                                                        <span class="header">C&U
+                                                                            <small>(Communication & Understanding)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.c_and_u==null?'N/A':c.clientPsychoIdeasBean.c_and_u}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <span class="header">W
+                                                                            <small>(Work)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.wrk==null?'N/A':c.clientPsychoIdeasBean.wrk}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">DOI
+                                                                            <small>(Duration of Illness)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.doi==null?'N/A':c.clientPsychoIdeasBean.doi}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-5">
+                                                                        <span class="header">GIS
+                                                                            <small>(Global Disability Score()</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoIdeasBean.gis==null?'N/A':c.clientPsychoIdeasBean.gis}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </fieldset>
+
+                                                        </div>
+                                                        <div class="col-md-12" *ngIf="c.clientPsychoPanss.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>PANSS
+                                                                    <small>(Positive and Negative Syndrome Scale)</small>
+                                                                </legend>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <span class="header">Date of Administration: </span>
+                                                                        <span class="value">{{c.clientPsychoPanss.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <span class="header">PS
+                                                                            <small>(Positive Scale)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoPanss.ps==null?'N/A':c.clientPsychoPanss.ps}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">NS
+                                                                            <small>(Negative Scale()</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoPanss.ns==null?'N/A':c.clientPsychoPanss.ns}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-5">
+                                                                        <span class="header">GP
+                                                                            <small>(General Psychopathology)</small>: </span>
+                                                                        <span class="value">{{c.clientPsychoPanss.gp==null?'N/A':c.clientPsychoPanss.gp}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </fieldset>
+
+                                                        </div>
+                                                        <div class="col-md-6" *ngIf="c.clientPsychoLspBean.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>LSP
+                                                                    <small>(Life Skills Profile)</small>
+                                                                </legend>
+                                                                <p>
+                                                                    <span class="header">Date of Administration: </span>
+                                                                    <span class="value">{{c.clientPsychoLspBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                                                </p>
+                                                                <p>
+                                                                    <span class="header">LSP
+                                                                        <small>(Life Skills Profile)</small> Score: </span>
+                                                                    <span class="value">{{c.clientPsychoLspBean.lspScore==null?'N/A':c.clientPsychoLspBean.lspScore}}</span>
+                                                                </p>
+                                                            </fieldset>
+
+                                                        </div>
+                                                        <div class="col-md-6" *ngIf="c.clientPsychoGafBean.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>GAF
+                                                                    <small>(Global Assessment of Functioning)</small>
+                                                                </legend>
+                                                                <p>
+                                                                    <span class="header">Date of Administration: </span>
+                                                                    <span class="value">{{c.clientPsychoGafBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                                                </p>
+                                                                <p>
+                                                                    <span class="header">GAF
+                                                                        <small>(Global Assessment of Functioning)</small> Score:
+                                                                    </span>
+                                                                    <span class="value">{{c.clientPsychoGafBean.gafScore==null?'N/A':c.clientPsychoGafBean.gafScoreStr}}</span>
+                                                                </p>
+                                                            </fieldset>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-1 text-center btn-section">
+                                                    <button type="button" class="btn btn-blue btn-sm" *ngIf="i==0" tooltip="Edit Psychomety test" placement="auto" container="body"
+                                                        (click)="editPsychometry(c)">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-blue btn-sm mt-2" tooltip="View Psychomety test" placement="auto" container="body" (click)="viewPsychometry(c)">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p-paginator  *ngIf="clientPsychometicTestList.length>0" [rows]="pagination.rows" [totalRecords]="pagination.totalRecords" (onPageChange)="searchPaginate($event)"></p-paginator>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p-dialog header="Export Medication data for period of" [(visible)]="showExportDailog" [modal]="true">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>From Date :</label>
+                        <input type="text" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                            class="form-control date" #dp="bsDatepicker" #fromDate [maxDate]="maxDate" placement="auto" (bsValueChange)="setFromDate($event)">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label>To Date :</label>
+                        <input type="text" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                            class="form-control date" #dp="bsDatepicker" #toDate [maxDate]="maxDate" placement="auto" (bsValueChange)="setToDate($event)"
+                            required>
+                    </div>
+                </div>
+                <div class="col-12 text-right">
+                    <button type="button" class="btn-custom btn-blue" (click)="exportToExcel(fromDate.value, toDate.value)">Export</button>
+                </div>
+            </div>
+        </p-dialog>
+    
+    
+        <p-dialog header="View Psychometry Test"  [contentStyle]="{'max-width':'600px'}" [(visible)]="viewDialog" [modal]="true">
+                <div class="viewDialog" *ngIf="viewData">
+                        <div class="row no-gutters">
+                                <div class="col-md-12" *ngIf="viewData.clientPsychoIdeasBean.dateOfEntry!=null">
+                                    <fieldset class="type">
+                                        <legend>IDEAS
+                                            <small>(Indian Disability Evaluation and Assessment Scale)</small>
+                                        </legend>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <span class="header">Date of Administration: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="header">SC
+                                                    <small>(Self Care)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.sc==null?'N/A':viewData.clientPsychoIdeasBean.sc}}</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="header">IA
+                                                    <small>(Interpersonal Activities)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.ia==null?'N/A':viewData.clientPsychoIdeasBean.ia}}</span>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <span class="header">C&U
+                                                    <small>(Communication & Understanding)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.c_and_u==null?'N/A':viewData.clientPsychoIdeasBean.c_and_u}}</span>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="header">W
+                                                    <small>(Work)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.wrk==null?'N/A':viewData.clientPsychoIdeasBean.wrk}}</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="header">DOI
+                                                    <small>(Duration of Illness)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.doi==null?'N/A':viewData.clientPsychoIdeasBean.doi}}</span>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <span class="header">GIS
+                                                    <small>(Global Disability Score()</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoIdeasBean.gis==null?'N/A':viewData.clientPsychoIdeasBean.gis}}</span>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                </div>
+                                <div class="col-md-12" *ngIf="viewData.clientPsychoPanss.dateOfEntry!=null">
+                                    <fieldset class="type">
+                                        <legend>PANSS
+                                            <small>(Positive and Negative Syndrome Scale)</small>
+                                        </legend>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <span class="header">Date of Administration: </span>
+                                                <span class="value">{{viewData.clientPsychoPanss.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="header">PS
+                                                    <small>(Positive Scale)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoPanss.ps==null?'N/A':viewData.clientPsychoPanss.ps}}</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="header">NS
+                                                    <small>(Negative Scale()</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoPanss.ns==null?'N/A':viewData.clientPsychoPanss.ns}}</span>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <span class="header">GP
+                                                    <small>(General Psychopathology)</small>: </span>
+                                                <span class="value">{{viewData.clientPsychoPanss.gp==null?'N/A':viewData.clientPsychoPanss.gp}}</span>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+
+                                </div>
+                                <div class="col-md-6" *ngIf="viewData.clientPsychoLspBean.dateOfEntry!=null">
+                                    <fieldset class="type">
+                                        <legend>LSP
+                                            <small>(Life Skills Profile)</small>
+                                        </legend>
+                                        <p>
+                                            <span class="header">Date of Administration: </span>
+                                            <span class="value">{{viewData.clientPsychoLspBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                        </p>
+                                        <p>
+                                            <span class="header">LSP
+                                                <small>(Life Skills Profile)</small> Score: </span>
+                                            <span class="value">{{viewData.clientPsychoLspBean.lspScore==null?'N/A':viewData.clientPsychoLspBean.lspScore}}</span>
+                                        </p>
+                                    </fieldset>
+
+                                </div>
+                                <div class="col-md-6" *ngIf="viewData.clientPsychoGafBean.dateOfEntry!=null">
+                                    <fieldset class="type">
+                                        <legend>GAF
+                                            <small>(Global Assessment of Functioning)</small>
+                                        </legend>
+                                        <p>
+                                            <span class="header">Date of Administration: </span>
+                                            <span class="value">{{viewData.clientPsychoGafBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                        </p>
+                                        <p>
+                                            <span class="header">GAF
+                                                <small>(Global Assessment of Functioning)</small> Score:
+                                            </span>
+                                            <span class="value">{{viewData.clientPsychoGafBean.gafScore==null?'N/A':viewData.clientPsychoGafBean.gafScore}}</span>
+                                        </p>
+                                    </fieldset>
+
+                                </div>
+                            </div>
+                </div>
+                       
+    
+            </p-dialog>

@@ -1,0 +1,55 @@
+.sub-content {
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);
+    background: white;
+}
+
+.mseQ{
+    margin-left: -15px;
+}
+.mseQ > li {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ef4023;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #d7d7d7;
+    letter-spacing: 2px;
+}
+.mseQ > li ol > li {
+    font-size: 16px;
+    font-weight: 500;
+    color: #069;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    word-break: break-all;
+}
+.mseQ > li ol > li  li {
+    font-size: 15px;
+    font-weight: 500;
+    color: black;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    word-break: break-all;
+}
+.mseQ > li ol > li  li li {
+    font-size: 14px;
+    font-weight: 400;
+    color: black;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    word-break: break-all;
+}
+.mseQ > li ol li span {
+    margin-left:5px;
+}
+
+.mseQ  li p{
+    margin-bottom: 3px;
+}
+
+.name-head{
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    color: #069;
+}

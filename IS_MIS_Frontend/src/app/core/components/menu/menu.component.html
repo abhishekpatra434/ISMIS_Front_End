@@ -1,0 +1,160 @@
+<!-- <div class="sidebar-menu"> -->
+<!--Commented By Bitan-->
+
+
+
+<!-- <ul id="accordion" class="accordion" >
+        <li *ngFor="let menu of menuList; let i = index" 
+          [class.active]="menu.active">
+          <div class="menu" (click)="toggle(i)">
+            <i class="fa fa-user"></i>
+            {{ menu.menuName }}
+            <i class="fa fa-chevron-down"></i>
+          </div>
+          <ul class="submenu" #submenu 
+            [style.height.px]="menu.active ? submenu.scrollHeight : 0">
+            <li *ngFor="let submenu of menu.menuLists">
+              <a href="">{{ submenu.menuName }}</a>
+            </li>
+          </ul>
+        </li>
+      </ul> -->
+<!-- {{menuList}} -->
+
+
+
+
+
+<!--Commented by Bitan-->
+<!-- <ul class="nav flex-column">
+    <li class="nav-item" *ngFor="let menu of menuList; let i = index"  [class.active]="menu.active">
+      <a class="nav-link" href="javascript:void(0);" (click)="toggle(i)" *ngIf="menu.menuLists!=null">
+        <i [class]="menu.menuIconUrl!=null?menu.menuIconUrl:''"></i>
+        <span class="sidebar-menu-text">{{ menu.menuName }}</span>
+        <i class="fa fa-chevron-down"></i>
+      </a>
+      <a class="nav-link active" href="javascript:void(0);" *ngIf="menu.menuLists==null">
+          <i [class]="menu.menuIconUrl!=null?'menu.menuIconUrl':''"></i>
+          <span class="sidebar-menu-text">{{ menu.menuName }}</span>
+         
+        </a>
+      <ul class="submenu" #submenu 
+            [style.height.px]="menu.active ? submenu.scrollHeight : 0">
+            <li *ngFor="let submenu of menu.menuLists">
+              <a [routerLink]="submenu.action">{{ submenu.menuName }}</a>
+            </li>
+          </ul>
+    </li>
+    </ul> -->
+
+<!--/Commented by Bitan-->
+
+
+
+
+
+<!-- <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="dashboard.html">
+              <i class="fa fa-dashboard icon" aria-hidden="true"></i>
+              <span class="sidebar-menu-text">Dashboard</span>
+            </a>
+          </li>
+
+
+          <li class="nav-item">
+            <a class="nav-link" routerLink="client/intake-form">
+              <i class="fa fa-file icon" aria-hidden="true"></i>
+              <span class="sidebar-menu-text">Intake Form - Client Details</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="client/mse-form">
+              <i class="fa fa-shopping-cart icon" aria-hidden="true"></i>
+              <span class="sidebar-menu-text">Mental Status Examination (MSE)</span>
+            </a>
+           
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="fa fa-users icon" aria-hidden="true"></i>
+              <span class="sidebar-menu-text">Customers</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="fa fa-bar-chart icon" aria-hidden="true"></i>
+              <span class="sidebar-menu-text">Reports</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">
+              <i class="fa fa-arrows-alt icon" aria-hidden="true"></i>
+              <span class="sidebar-menu-text">Integrations</span>
+            </a>
+          </li>
+        </ul> -->
+<!-- </div> -->
+<!--Commented By Bitan-->
+
+
+
+
+
+
+<!--New added Code by Bitan 30102019-->
+<nav class="sidebar">
+  <div>
+    <button class="d-sm-block btn btn-link" (click)="menuHideShow();">
+      <i class="fa color-white" style="font-size: 20px; margin-top: 5px;" [ngClass]="show ? 'fa-times' : 'fa-bars'"></i>
+    </button>
+  </div>
+  <div class="sidebar-menu" *ngIf="show">
+    <ul class="nav flex-column">
+      <li class="nav-item" *ngFor="let menu of menuList; let i = index" [class.active]="menu.active">
+        <a class="nav-link" href="javascript:void(0);" (click)="toggle(i)" *ngIf="menu.menuLists!=null">
+          <i [class]="menu.menuIconUrl!=null?menu.menuIconUrl:''"></i>
+          <span class="sidebar-menu-text">{{ menu.menuName }}</span>
+          <i class="fa fa-chevron-down float-right"></i>
+        </a>
+        <a class="nav-link active" [routerLink]="menu.action" (click)="toggle(i)" href="javascript:void(0);" *ngIf="menu.menuLists==null">
+          <i [class]="menu.menuIconUrl!=null?menu.menuIconUrl:''"></i>
+          <span class="sidebar-menu-text">{{ menu.menuName }}</span>
+
+        </a>
+        <!-- <ul class="submenu" #submenu [style.height.px]="menu.active ? submenu.scrollHeight : 0">
+          <li *ngFor="let submenu of menu.menuLists"  [class.active]="submenu.active">
+            <a [routerLink]="submenu.action" (click)="toggleSubMenu(submenu.menuId)">{{ submenu.menuName }}</a>
+          </li>
+        </ul> -->
+        <ul class="submenu" #submenu
+          [ngStyle]=" menu.active ? {'display': 'block','height': 'auto'} : {'display': 'none'}">
+          <li *ngFor="let submenu of menu.menuLists; let j=index" [class.active]="submenu.active">
+            <a [routerLink]="submenu.action" href="javascript:void(0);" (click)="toggleSubMenu(i,j)" *ngIf="submenu.menuLists!=null">
+              <span>{{ submenu.menuName }}</span>
+              <i class="fa fa-chevron-down float-right"></i>
+            </a>
+            <a [routerLink]="submenu.action" href="javascript:void(0);" (click)="toggleSubMenu(i,j)" *ngIf="submenu.menuLists==null">
+              <span>{{ submenu.menuName }}</span>
+        
+            </a>
+
+            <ul class="childSubMenu" #childSubMenu
+              [ngStyle]=" submenu.active ? {'display': 'block','height': 'auto'} : {'display': 'none'}">
+              <li *ngFor="let childSubMenu of submenu.menuLists" [class.active]="childSubMenu.active">
+                <a [routerLink]="childSubMenu.action" href="javascript:void(0);"
+                  (click)="togglechildSubMenu(i,j,childSubMenu.menuId)">
+                  <span>{{ childSubMenu.menuName }}</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+      </li>
+    </ul>
+  </div>
+
+</nav>
+
+<!--/New added Code by Bitan 30102019-->

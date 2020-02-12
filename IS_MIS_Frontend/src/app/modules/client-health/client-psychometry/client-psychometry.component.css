@@ -1,0 +1,11 @@
+.type{
+    padding: .2em .6em;
+    margin: .2em 0;
+    border: 1px solid #b7d8f1;
+}
+.type .header{
+    font-weight: 400;
+}
+.type .value{
+    font-weight: 500;
+}

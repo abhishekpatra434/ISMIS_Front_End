@@ -1,0 +1,727 @@
+<div class="page-head">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="pageHeading">Client Health - Pathology Test</h1>
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="button" class="btn-custom btn-red mr-2" (click)="resetScreen()" *ngIf="clientView">Reset</button>
+            <button type="button" class="btn-custom btn-red mr-2" (click)="openExportDialog()">Export All</button>
+        </div>
+    </div>
+</div>
+
+<div class="sub-content">
+    <form [formGroup]="searchClientForm">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client UID :</label>
+                        <div>
+                            <p-autoComplete [suggestions]="clientUIDList" placeholder="Type Client UID" (onSelect)="setClientUID($event)" [minLength]="1"
+                                #clientID (completeMethod)="getclientUIDList($event)" formControlName="clientUID" (onKeyUp)="manageUIDValue(clientID.value)">
+                                <ng-template let-results pTemplate="item">
+                                    <span>{{results.clientUid}}</span>
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client Name :</label>
+                        <div>
+                            <p-autoComplete [suggestions]="clientNameList" placeholder="Type Client Name" (onSelect)="setClientName($event)" [minLength]="1"
+                                #clientN (completeMethod)="getClientNameList($event)" formControlName="clientName" (onKeyUp)="manageNameValue(clientN.value)">
+                                <ng-template let-results pTemplate="item">
+                                    <span>{{results.clientName}} (
+                                        <b>{{results.clientUid}}</b>) </span>
+                                </ng-template>
+                            </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+    </form>
+
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card client-view" *ngIf="clientView">
+                <div class="card-body">
+                    <div class="text-center">
+                        <img src="assets/images/profile.png" *ngIf="profilePhoto == ''" width="100" height="100" class="rounded-circle ee">
+
+                        <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !==''" width="100" height="100" class="rounded-circle ee">
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-uppercase">{{clientView.clientMasterBean.clientName}}
+                            <br>
+                            <small>
+                                <b>(UID : </b>
+                                {{clientView.clientMasterBean.clientUid}})
+                            </small>
+                        </h4>
+                        <h6>
+                            <b>Age/Sex : </b>
+                            {{clientView.clientMasterBean.age==null?"N/A":clientView.clientMasterBean.age}} / {{clientView.clientMasterBean.sexStr==null?"N/A":clientView.clientMasterBean.sexStr}}
+                        </h6>
+                        <h6>
+                            <b>Date of Entry : </b>
+                            {{clientView.clientMasterBean.dateOfEntry==null?"N/A":(clientView.clientMasterBean.dateOfEntry | date:'dd-MM-yyy')}}
+                        </h6>
+                        <fieldset class="mt-2 text-left">
+                            <legend>Finding Details</legend>
+
+                            <p>
+                                <b>Found In Area : </b>
+                                {{clientView.clientMasterBean.foundInArea==null?"N/A":clientView.clientMasterBean.foundInArea}}
+                            </p>
+
+                            <p>
+                                <b>Ward No. : </b>
+                                {{clientView.clientMasterBean.wardNo==null?"N/A":clientView.clientMasterBean.wardNo}}
+                            </p>
+
+                            <p>
+                                <b>Police Station. : </b>
+                                {{clientView.clientMasterBean.policeStation==null?"N/A":clientView.clientMasterBean.policeStation}}
+                            </p>
+
+                            <p>
+                                <b>Landmark. : </b>
+                                {{clientView.clientMasterBean.landmark==null?"N/A":clientView.clientMasterBean.landmark}}
+                            </p>
+
+                        </fieldset>
+
+                        <fieldset class="mt-2 text-left">
+                            <legend>Thyroid Significance </legend>
+                            <div class="row no-gutters">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{clientView.clientThyroidSignificanceBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">TSH
+                                        <small>(in uIU/ml)</small>: </span>
+                                    <span class="value">{{clientView.clientThyroidSignificanceBean.thyroTsh==null?'N/A':clientView.clientThyroidSignificanceBean.thyroTsh}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">T3
+                                        <small>(in pg/ml)</small>: </span>
+                                    <span class="value">{{clientView.clientThyroidSignificanceBean.thyroT3==null?'N/A':clientView.clientThyroidSignificanceBean.thyroT3}}</span>
+                                </div>
+                                <div class="col-md-12">
+                                    <span class="header">T4
+                                        <small>(in mg/dl)</small>: </span>
+                                    <span class="value">{{clientView.clientThyroidSignificanceBean.thyroT4==null?'N/A':clientView.clientThyroidSignificanceBean.thyroT4}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="mt-2 text-left">
+                                <legend>Diabetes Significance </legend>
+                                <div class="row no-gutters">
+                                    <div class="col-md-12">
+                                        <span class="header">Date of Administration: </span>
+                                        <span class="value">{{clientView.clientDiabetesSignificanceBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <span class="header">RBS 
+                                            <small>(in mg/dl)</small>: </span>
+                                        <span class="value">{{clientView.clientDiabetesSignificanceBean.diabetesRBS==null?'N/A':clientView.clientDiabetesSignificanceBean.diabetesRBS}}</span>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <span class="header">FBS 
+                                            <small>(in mg/dl)</small>: </span>
+                                        <span class="value">{{clientView.clientDiabetesSignificanceBean.diabetesFBS==null?'N/A':clientView.clientDiabetesSignificanceBean.diabetesFBS}}</span>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <span class="header">PPBS 
+                                            <small>(in gm/dl)</small>: </span>
+                                        <span class="value">{{clientView.clientDiabetesSignificanceBean.diabetesPPBS==null?'N/A':clientView.clientDiabetesSignificanceBean.diabetesPPBS}}</span>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="mt-2 text-left">
+                                    <legend>Other Blood Tests </legend>
+                                    <div class="row no-gutters">
+                                        <div class="col-md-12">
+                                            <span class="header">Date of Administration: </span>
+                                            <span class="value">{{clientView.clientHemoglobinSignificanceBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <span class="header">Hemoglobin  
+                                                <small>(in mg/dl)</small>: </span>
+                                            <span class="value">{{clientView.clientHemoglobinSignificanceBean.hbPercent==null?'N/A':clientView.clientHemoglobinSignificanceBean.hbPercent}}</span>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <span class="header">ESR  
+                                                <small>(in mm/hr)</small>: </span>
+                                            <span class="value">{{clientView.clientHemoglobinSignificanceBean.esr==null?'N/A':clientView.clientHemoglobinSignificanceBean.esr}}</span>
+                                        </div>
+                                       
+                                    </div>
+                                </fieldset>
+
+                                
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card" *ngIf="clientView">
+                <div class="card-body healthData">
+                    <div class="content table-responsive mt-2">
+
+                        <div *ngIf="!showClientPathologyTestList && addEditTest">
+                            <!-- *ngIf="!showClientPathologyTestList && addEditTest" -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="pageHeading" *ngIf="seqNo==null">Add Record</h3>
+                                    <h3 class="pageHeading" *ngIf="seqNo!=null">Edit Record</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <button class="btn btn-link  btn-sm mr-2" type="button" (click)="backToList()">Back to List</button>
+                                    <button type="button" class="btn-custom btn-sm btn-blue mr-2" (click)="addNewTest()" *ngIf="showClientPathologyTestList || seqNo!=null">Add New</button>
+                                    <button type="button" class="btn-custom btn-sm btn-red mr-2" (click)="saveUpdateClientPathologyTest()">Save</button>
+                                </div>
+                            </div>
+
+                            <form [formGroup]="pathologyForm">
+                                <div class="table-responsive">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <fieldset>
+                                                <legend>Thyroid Significance</legend>
+                                                <div class="row" formGroupName="clientThyroidSignificanceBean">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Date of Administration</label>
+                                                            <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate"
+                                                                #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'"
+                                                                (bsValueChange)="setCohortYear($event, 'clientThyroidSignificanceBean')">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>TSH
+                                                                <small>(in uIU/ml)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="thyroTsh" twoDigitDecimaNumber maxlength="10" #tsh (blur)="checkDoA('thyro', tsh.value)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>T3
+                                                                <small>(in pg/ml)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="thyroT3" twoDigitDecimaNumber maxlength="10" #t3 (blur)="checkDoA('thyro', t3.value)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>T4
+                                                                <small>(in mg/dl)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="thyroT4" twoDigitDecimaNumber maxlength="10" #t4 (blur)="checkDoA('thyro', t4.value)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <fieldset>
+                                                <legend>Diabetes Significance</legend>
+                                                <div class="row" formGroupName="clientDiabetesSignificanceBean">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Date of Administration</label>
+                                                            <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate"
+                                                                #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'"
+                                                                (bsValueChange)="setCohortYear($event, 'clientDiabetesSignificanceBean')">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>RBS
+                                                                <small>(in mg/dl)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="diabetesRBS" twoDigitDecimaNumber maxlength="10" #rbs (blur)="checkDoA('diabetes', rbs.value)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>FBS
+                                                                <small>(in mg/dl)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="diabetesFBS" twoDigitDecimaNumber maxlength="10" #fbs (blur)="checkDoA('diabetes', fbs.value)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>PPBS
+                                                                <small>(in gm/dl)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="diabetesPPBS" twoDigitDecimaNumber maxlength="10" #ppbs (blur)="checkDoA('diabetes', ppbs.value)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <fieldset>
+                                                <legend>Other Blood Tests</legend>
+                                                <div class="row" formGroupName="clientHemoglobinSignificanceBean">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Date of Administration</label>
+                                                            <input type="text" formControlName="dateOfEntry" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate"
+                                                                #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'"
+                                                                (bsValueChange)="setCohortYear($event, 'clientHemoglobinSignificanceBean')">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Hemoglobin
+                                                                <small>(in mg/dl)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="hbPercent" twoDigitDecimaNumber maxlength="10" #hb (blur)="checkDoA('blood', hb.value)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>ESR
+                                                                <small>(in mm/hr)</small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="esr" twoDigitDecimaNumber maxlength="10" #esrVal (blur)="checkDoA('blood', esrVal.value)">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </fieldset>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <fieldset>
+                                                <legend>HIV Significance</legend>
+                                                <div class="row" formGroupName="clientHivTestBean">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>Date of Administration</label>
+                                                            <input type="text" formControlName="dateOfAdmin" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate"
+                                                                #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'"
+                                                                (bsValueChange)="setCohortYear($event, 'clientHivTestBean')">
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label>HIV Result
+                                                                <small></small>
+                                                            </label>
+                                                            <input type="text" class="form-control" formControlName="hivData" twoDigitDecimaNumber maxlength="10" #hiv (blur)="checkDoA('hiv', hiv.value)">
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </fieldset>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <fieldset>
+                                                <legend>Other Tests
+                                                    <small>(if any)</small>
+                                                </legend>
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date of Administration</th>
+                                                                <th>Test Name</th>
+                                                                <th>Test Result</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody formArrayName="listClientOthTest">
+                                                            <tr *ngFor="let c of listClientOthTest.controls; let i = index" [formGroup]="c" [attr.id]="'tr'+i">
+                                                                <td>
+                                                                    <input type="text" formControlName="dateOfAdmin" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                                                                        class="form-control date" [minDate]="dateOfEntry" [maxDate]="maxDate"
+                                                                        #dp="bsDatepicker" placement="auto" [readonly]="isView=='Y'"
+                                                                        (bsValueChange)="setCohortYear($event, 'listClientOthTest')">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control" formControlName="othTestName" #name (blur)="checkDoAOtherTest(name.value, i)">
+                                                                </td>
+                                                                <td> 
+                                                                    <input type="text" class="form-control" formControlName="othTestData" #data (blur)="checkDoAOtherTest(data.value, i)">
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" *ngIf="c.value.otherTestId==null" tooltip="Delete Test" placement="auto" class="btn btn-link btn-sm" (click)="deleteOthTest(i)">
+                                                                        <i class="fa fa-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <div class="addNewRow text-center p-2 mb-2" (click)="addNewOtherTest()">
+                                                        <i class="fa fa-plus"></i> Add New Test
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-right">
+                                        <button type="button" class="btn-custom btn-sm btn-red mb-2" (click)="saveUpdateClientPathologyTest()">Save</button>
+                                </div>
+
+                            </form>
+
+                        </div>
+                        <div *ngIf="showClientPathologyTestList">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3 class="pageHeading" [hidden]="clientPathologyTestList.length == 0 && !allowToAdd">Latest Pathology Test records</h3>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <button type="button" class="btn-custom btn-sm btn-blue mr-2" (click)="addNewTest()" *ngIf="showClientPathologyTestList || seqNo!=null">Add New</button>
+                                </div>
+                            </div>
+                            <div class="text-center no-record" *ngIf="clientPathologyTestList.length == 0 && !allowToAdd">
+                                <h1>
+                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                </h1>
+                                <h2>Please fill the Pathology Test details in Intake Form.</h2>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card health-card-view mb-2" *ngFor="let c of clientPathologyTestList | slice:pagination.first:pagination.last; let i = index">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-11">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-md-12" *ngIf="c.clientThyroidSignificanceBean.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>Thyroid Significance</legend>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <span class="header">Date of Administration: </span>
+                                                                        <span class="value">{{c.clientThyroidSignificanceBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">TSH
+                                                                            <small>(in uIU/ml)</small>: </span>
+                                                                        <span class="value">{{c.clientThyroidSignificanceBean.thyroTsh==null?'N/A':c.clientThyroidSignificanceBean.thyroTsh}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">T3
+                                                                            <small>(in pg/ml)</small>: </span>
+                                                                        <span class="value">{{c.clientThyroidSignificanceBean.thyroT3==null?'N/A':c.clientThyroidSignificanceBean.thyroT3}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">T4
+                                                                            <small>(in mg/dl)</small>: </span>
+                                                                        <span class="value">{{c.clientThyroidSignificanceBean.thyroT4==null?'N/A':c.clientThyroidSignificanceBean.thyroT4}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+
+                                                        <div class="col-md-12" *ngIf="c.clientDiabetesSignificanceBean.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>Diabetes Significance</legend>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <span class="header">Date of Administration: </span>
+                                                                        <span class="value">{{c.clientDiabetesSignificanceBean.dateOfEntry |
+                                                                            date:'dd-MM-yyyy'}}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">RBS
+                                                                            <small>(in mg/dl)</small>: </span>
+                                                                        <span class="value">{{c.clientDiabetesSignificanceBean.diabetesRBS==null?'N/A':c.clientDiabetesSignificanceBean.diabetesRBS}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">FBS
+                                                                            <small>(in mg/dl)</small>: </span>
+                                                                        <span class="value">{{c.clientDiabetesSignificanceBean.diabetesFBS==null?'N/A':c.clientDiabetesSignificanceBean.diabetesFBS}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">PPBS
+                                                                            <small>(in gm/dl)</small>: </span>
+                                                                        <span class="value">{{c.clientDiabetesSignificanceBean.diabetesPPBS==null?'N/A':c.clientDiabetesSignificanceBean.diabetesPPBS}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+
+                                                        <div class="col-md-12" *ngIf="c.clientHemoglobinSignificanceBean.dateOfEntry!=null">
+                                                            <fieldset class="type">
+                                                                <legend>Other Blood Tests</legend>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <span class="header">Date of Administration: </span>
+                                                                        <span class="value">{{c.clientHemoglobinSignificanceBean.dateOfEntry
+                                                                            | date:'dd-MM-yyyy'}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">Hemoglobin
+                                                                            <small>(in mg/dl)</small>: </span>
+                                                                        <span class="value">{{c.clientHemoglobinSignificanceBean.hbPercent==null?'N/A':c.clientHemoglobinSignificanceBean.hbPercent}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">ESR
+                                                                            <small>(in mm/hr)</small>: </span>
+                                                                        <span class="value">{{c.clientHemoglobinSignificanceBean.esr==null?'N/A':c.clientHemoglobinSignificanceBean.esr}}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+
+                                                        <div class="col-md-12" *ngIf="c.clientHivTestBean.dateOfAdmin!=null">
+                                                            <fieldset class="type">
+                                                                <legend>HIV Significance</legend>
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <span class="header">Date of Administration: </span>
+                                                                        <span class="value">{{c.clientHivTestBean.dateOfAdmin | date:'dd-MM-yyyy'}}</span>
+                                                                    </div>
+                                                                    <div class="col-md-4">
+                                                                        <span class="header">HIV Result
+                                                                            <small></small>: </span>
+                                                                        <span class="value">{{c.clientHivTestBean.hivData==null?'N/A':c.clientHivTestBean.hivData}}</span>
+                                                                    </div>
+
+                                                                </div>
+                                                            </fieldset>
+                                                        </div>
+
+                                                        <div class="col-md-12" *ngIf="c.listClientOthTest">
+                                                            <fieldset class="type" *ngIf="c.listClientOthTest.length > 0">
+                                                                <legend>Other Tests</legend>
+                                                                <div class="table-responsive">
+                                                                    <table class="table">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Date of Administration</th>
+                                                                                <th>Test Name</th>
+                                                                                <th>Test Result</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr *ngFor="let t of c.listClientOthTest">
+                                                                                <td>{{t.dateOfAdmin | date:'dd-MM-yyyy'}}</td>
+                                                                                <td>{{t.othTestName==null?'N/A':t.othTestName}}</td>
+                                                                                <td>{{t.othTestData==null?'N/A':t.othTestData}}</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+
+                                                            </fieldset>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-1 text-center btn-section">
+                                                    <button type="button" class="btn btn-blue btn-sm" *ngIf="i==0" tooltip="Edit Pathology test" placement="auto" container="body"
+                                                        (click)="editPathology(c)">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-blue btn-sm mt-2" tooltip="View Pathology test" placement="auto" container="body" (click)="viewPathology(c)">
+                                                        <i class="fa fa-eye"></i>
+                                                    </button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p-paginator *ngIf="clientPathologyTestList.length>0" [rows]="pagination.rows" [totalRecords]="pagination.totalRecords" (onPageChange)="searchPaginate($event)"></p-paginator>
+
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<p-dialog header="Export Pathology data for period of" [(visible)]="showExportDailog" [modal]="true">
+    <div class="row">
+        <div class="col-6">
+            <div class="form-group">
+                <label>From Date :</label>
+                <input type="text" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                    class="form-control date" #dp="bsDatepicker" #fromDate [maxDate]="maxDate" placement="auto" (bsValueChange)="setFromDate($event)">
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-group">
+                <label>To Date :</label>
+                <input type="text" placeholder="DD-MM-YYYY" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                    class="form-control date" #dp="bsDatepicker" #toDate [maxDate]="maxDate" placement="auto" (bsValueChange)="setToDate($event)"
+                    required>
+            </div>
+        </div>
+        <div class="col-12 text-right">
+            <button type="button" class="btn-custom btn-blue" (click)="exportToExcel(fromDate.value, toDate.value)">Export</button>
+        </div>
+    </div>
+</p-dialog>
+
+<p-dialog header="View Pathology Test"  [contentStyle]="{'max-width':'600px'}" [(visible)]="viewDialog" [modal]="true">
+        <div class="viewDialog" *ngIf="viewData">
+            <div class="row no-gutters">
+                    <div class="col-md-12" *ngIf="viewData.clientThyroidSignificanceBean.dateOfEntry!=null">
+                        <fieldset class="type">
+                            <legend>Thyroid Significance</legend>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{viewData.clientThyroidSignificanceBean.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">TSH
+                                        <small>(in uIU/ml)</small>: </span>
+                                    <span class="value">{{viewData.clientThyroidSignificanceBean.thyroTsh==null?'N/A':viewData.clientThyroidSignificanceBean.thyroTsh}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">T3
+                                        <small>(in pg/ml)</small>: </span>
+                                    <span class="value">{{viewData.clientThyroidSignificanceBean.thyroT3==null?'N/A':viewData.clientThyroidSignificanceBean.thyroT3}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">T4
+                                        <small>(in mg/dl)</small>: </span>
+                                    <span class="value">{{viewData.clientThyroidSignificanceBean.thyroT4==null?'N/A':viewData.clientThyroidSignificanceBean.thyroT4}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="viewData.clientDiabetesSignificanceBean.dateOfEntry!=null">
+                        <fieldset class="type">
+                            <legend>Diabetes Significance</legend>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{viewData.clientDiabetesSignificanceBean.dateOfEntry |
+                                        date:'dd-MM-yyyy'}}
+                                    </span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">RBS
+                                        <small>(in mg/dl)</small>: </span>
+                                    <span class="value">{{viewData.clientDiabetesSignificanceBean.diabetesRBS==null?'N/A':viewData.clientDiabetesSignificanceBean.diabetesRBS}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">FBS
+                                        <small>(in mg/dl)</small>: </span>
+                                    <span class="value">{{viewData.clientDiabetesSignificanceBean.diabetesFBS==null?'N/A':viewData.clientDiabetesSignificanceBean.diabetesFBS}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">PPBS
+                                        <small>(in gm/dl)</small>: </span>
+                                    <span class="value">{{viewData.clientDiabetesSignificanceBean.diabetesPPBS==null?'N/A':viewData.clientDiabetesSignificanceBean.diabetesPPBS}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="viewData.clientHemoglobinSignificanceBean.dateOfEntry!=null">
+                        <fieldset class="type">
+                            <legend>Other Blood Tests</legend>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{viewData.clientHemoglobinSignificanceBean.dateOfEntry
+                                        | date:'dd-MM-yyyy'}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">Hemoglobin
+                                        <small>(in mg/dl)</small>: </span>
+                                    <span class="value">{{viewData.clientHemoglobinSignificanceBean.hbPercent==null?'N/A':viewData.clientHemoglobinSignificanceBean.hbPercent}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">ESR
+                                        <small>(in mm/hr)</small>: </span>
+                                    <span class="value">{{viewData.clientHemoglobinSignificanceBean.esr==null?'N/A':viewData.clientHemoglobinSignificanceBean.esr}}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="viewData.clientHivTestBean.dateOfAdmin!=null">
+                        <fieldset class="type">
+                            <legend>HIV Significance</legend>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="header">Date of Administration: </span>
+                                    <span class="value">{{viewData.clientHivTestBean.dateOfAdmin | date:'dd-MM-yyyy'}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="header">HIV Result
+                                        <small></small>: </span>
+                                    <span class="value">{{viewData.clientHivTestBean.hivData==null?'N/A':viewData.clientHivTestBean.hivData}}</span>
+                                </div>
+
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-md-12" *ngIf="viewData.listClientOthTest">
+                        <fieldset class="type" *ngIf="viewData.listClientOthTest.length > 0">
+                            <legend>Other Tests</legend>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date of Administration</th>
+                                            <th>Test Name</th>
+                                            <th>Test Result</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let t of viewData.listClientOthTest">
+                                            <td>{{t.dateOfAdmin | date:'dd-MM-yyyy'}}</td>
+                                            <td>{{t.othTestName==null?'N/A':t.othTestName}}</td>
+                                            <td>{{t.othTestData==null?'N/A':t.othTestData}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </fieldset>
+                    </div>
+                </div>
+        </div>
+               
+
+    </p-dialog>

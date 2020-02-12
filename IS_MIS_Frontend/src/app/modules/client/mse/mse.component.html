@@ -1,0 +1,344 @@
+<p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
+<div class="page-head">
+  <div class="row">
+    <div class="col-md-8">
+      <h1 class="pageHeading" *ngIf="!showMseForm">Pending Mental Status Examination (MSE) Client List</h1>
+      <h1 class="pageHeading" *ngIf="showMseForm">Mental Status Examination (MSE) Form</h1>
+    </div>
+    <div class="col-md-4 text-right">
+      <button class="btn-custom btn-blue mr-2" type="button" (click)="backToClientList()" *ngIf="showMseForm">Back</button>
+      <ng-container *ngIf="isView!='Y'">
+      <button class="btn-custom btn-red" type="button" (click)="saveOrUpdateMseForm()" *ngIf="showMseForm && !isEdit">Save</button>
+      <button class="btn-custom btn-red" type="button" (click)="saveOrUpdateMseForm()" *ngIf="showMseForm && isEdit">Update</button>
+      </ng-container>
+      
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!showMseForm">
+
+    <div class="content table-responsive mt-2">
+        <div class="text-center" *ngIf="clientList.length == 0">
+            <h2>No client data found</h2>
+        </div>
+        <p-table [columns]="columns"  [value]="clientList" [paginator]="true" [rows]=10  [scrollable]="true" scrollHeight="calc(100vh - 202px)" *ngIf="clientList.length > 0">
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                        {{col.header}}
+                            <p-sortIcon [field]="col.field" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                    </th>
+                    <!-- <th scope="col">Client UID</th>
+                    <th scope="col">Client Name</th>
+                    <th scope="col">Age(in yrs)</th>
+                    <th scope="col">Police Station</th>
+                    <th scope="col">Date of Entry</th>
+                    <th scope="col">Cohort Year</th> -->
+                    <th scope="col"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-c>
+                <tr>
+                    <td *ngFor="let col of columns; let i=index;">
+                        <ng-container *ngIf="i==0">
+                                <a href="javascript:void(0);"  [tooltip]="tolTemplate" (onShown)="showProfilePhoto(c.clientId)" placement="auto" container="body" (click)="insertToMSEForm(c)">
+                                        <span>{{c[col.field] }}</span>
+                                        </a>
+                        </ng-container>
+                        <ng-container *ngIf="i==1">
+                                {{c[col.field]}}
+                        </ng-container>
+                        <ng-container *ngIf="i==2">
+                                {{c[col.field]}}
+                        </ng-container>
+                        <ng-container *ngIf="i==3">
+                                {{c[col.field]}}
+                        </ng-container>
+                    <ng-container *ngIf="i==4">
+                            {{c[col.field]  | date:'dd-MM-yyyy'}}
+                    </ng-container>
+                    <ng-container *ngIf="i==5">
+                            {{c[col.field]}}
+                    </ng-container>
+                    
+                </td>
+                    <!-- <td class="align-top">
+                        <a tooltip="Add MSE" placement="auto" container="body"  href="javascript:void(0);" (click)="insertToMSEForm(c)">
+                        <span>{{c.clientUid}}</span>
+                        </a>
+                    </td>
+                    <td class="align-top">
+                        <span>{{c.clientName}}</span>
+                    </td>
+                    <td class="align-top">
+                        <span>{{c.age}}</span>
+                    </td>
+                    <td class="align-top">
+                        <span>{{c.policeStation}}</span>
+                    </td>
+                    <td class="align-top">
+                            <span>{{c.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                        </td>
+                        <td class="align-top">
+                                <span>{{c.cohortYear}}</span>
+                            </td> -->
+                    <td class="text-right">
+                        <!-- <a tooltip="Add MSE" placement="auto" container="body"  href="javascript:void(0);" (click)="insertToMSEForm(c)">
+                            <i class="fa fa-plus-square"></i> MSE
+                        </a> -->
+                        <button class="btn-custom btn-red btn-sm" (click)="insertToMSEForm(c)">
+                            <i class="fa fa-plus-square"></i> Add MSE
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
+
+
+    <!-- <form [formGroup]="searchClientForm">
+      <fieldset >
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Client UID :</label>
+              
+              <div>
+                <p-autoComplete [appendTo]="row" [suggestions]="clientUIDList" placeholder="Type Client UID" (onSelect)="setClientUID($event)" [minLength]="1"
+                  #clientID (completeMethod)="getclientUIDList($event)" formControlName="clientUID" (onKeyUp)="manageUIDValue(clientID.value)">
+                  <ng-template let-results pTemplate="item">
+                    <span>{{results.clientUid}}</span>
+                  </ng-template>
+                </p-autoComplete>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Client Name :</label>
+              <div>
+                <p-autoComplete [suggestions]="clientNameList" placeholder="Type Client Name" (onSelect)="setClientName($event)" [minLength]="1"
+                  #clientN (completeMethod)="getClientNameList($event)" formControlName="clientName" (onKeyUp)="manageNameValue(clientN.value)">
+                  <ng-template let-results pTemplate="item">
+                    <span>{{results.clientName}} (
+                      <b>{{results.clientUid}}</b>) </span>
+                  </ng-template>
+                </p-autoComplete>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Date of Entry :</label>
+              <input type="text" formControlName="dateOfEntry" bsDatepicker [bsConfig]="{ dateInputFormat: dateFormat, showWeekNumbers: false }"
+                class="form-control date" #dp="bsDatepicker" placement="auto" readonly>
+
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form> -->
+
+<div class="sub-content mt-2" *ngIf="showMseForm">
+  <div *ngIf="clientData!=null" class="p-1 border-bottom">
+      <h3 class="name-head">{{clientData.clientName}}
+        <small> (<b>UID: </b>{{clientData.clientUid}})</small>
+      </h3>
+      <!-- <p><b>Date of Entry: </b>{{clientData.dateOfEntry | date:'dd-MM-yyyy'}}</p> -->
+  </div>
+  
+    <!-- <div class="row" *ngIf="clientData!=null">
+    <div class="col-md-4">
+      <h6>Client Name</h6>
+      <p>{{clientData.clientName}}</p>
+    </div>
+    <div class="col-md-4">
+      <h6>Client UID</h6>
+      <p>{{clientData.clientUid}}</p>
+    </div>
+    <div class="col-md-4">
+      <h6>Date of Entry</h6>
+      <p>{{clientData.dateOfEntry | date:'dd-MM-yyyy'}}</p>
+    </div>
+    </div> -->
+    <!-- <hr> -->
+  <div class="row mt-1">
+    <div class="col-md-12">
+      <h6 class="text-center pb-2  border-bottom">Check relevant options against different components<i>(options will have checkbox)</i></h6>
+      <!-- <hr> -->
+      <ol class="mseQ" [class.block]="isView=='Y'">
+        <li *ngFor="let mse of mseFormTemplate">
+          <p> {{mse.lbl_name}} </p>
+
+          <ol type="A" *ngIf="mse.has_child=='Y'">
+            <li *ngFor="let c1 of mse.childNode">
+              <p>
+                {{c1.lbl_name}}
+              </p>
+              <ol type="i" class="row" *ngIf="c1.has_child=='Y'">
+                <ng-container>
+                  <ng-container *ngFor="let c2 of c1.childNode">
+                      <li class="col-md-4" *ngIf="c2.option_type=='C' && c2.has_child=='N'">
+                          <input type="checkbox" [name]="'opt'+c2.mental_status_lbl_parent_id" [value]="c2.mental_status_lbl_id" (change)="setAnswerTemplateCheckbox(c1, c2 , $event)" [checked]="c2.lbl_status=='Y'">
+                          <span>{{c2.lbl_name}}</span>
+                        </li>
+                    <li class="col-md-4" *ngIf="c2.option_type=='R' && c2.has_child=='N'">
+                      <input type="radio" [name]="'opt'+c2.mental_status_lbl_parent_id" [value]="c2.mental_status_lbl_id" (change)="setAnswerTemplate(c1, c2)" [checked]="c2.lbl_status=='Y'">
+                      <span>{{c2.lbl_name}}</span>
+                    </li>
+                    <li class="col-md-12" *ngIf="c2.has_child=='Y'">
+                      <p>
+                        {{c2.lbl_name}}
+                      </p>
+                      <ol type="a" class="row">
+                        <ng-container>
+                          <ng-container *ngFor="let c3 of c2.childNode">
+                            <li class="col-md-4" *ngIf="c3.option_type=='R' && c3.has_child=='N'">
+                              <input type="radio" [name]="'opt'+c3.mental_status_lbl_parent_id" [value]="c3.mental_status_lbl_id" (click)="setAnswerTemplate(c2, c3)" [checked]="c3.lbl_status=='Y'">
+                              <span>{{c3.lbl_name}}</span>
+                            </li>
+                            <li class="col-md-4" *ngIf="c3.option_type=='C' && c3.has_child=='N'">
+                              <input type="checkbox" [name]="'opt'+c3.mental_status_lbl_parent_id" [value]="c3.mental_status_lbl_id" (click)="setAnswerTemplateCheckbox(c2, c3 , $event)"  [checked]="c3.lbl_status=='Y'">
+                              <span>{{c3.lbl_name}}</span>
+                            </li>
+                            <li class="col-md-4" *ngIf="c3.option_type=='R' && c3.has_child=='Y'">
+                              <p>
+                                {{c3.lbl_name}}
+                              </p>
+
+                            </li>
+
+                          </ng-container>
+                        </ng-container>
+
+
+                      </ol>
+
+                    </li>
+
+                  </ng-container>
+                </ng-container>
+
+
+              </ol>
+              <div class="col-md-6" *ngIf="c1.has_child=='N' && c1.option_type=='T'">
+               
+                <input type="text" [attr.value]="c1.mse_text_value" placeholder="Enter text here" class="form-control" #txt (blur)="setTextToMSETemplate(txt.value, c1)">
+              </div>
+            </li>
+          </ol>
+        </li>
+      </ol>
+
+      <div class="form-group">
+        <label>Summary</label>
+        <textarea class="form-control"  [readonly]="isView=='Y'"  style="height: 100px !important;" maxlength="500"  #summary (blur)="setSummaryText(summary.value)">{{summaryTxt}}</textarea>
+      </div>
+
+    </div>
+  </div>
+</div>
+<ng-template #tolTemplate>
+    <!-- <img src="assets/images/profile.png" width="100" *ngIf="!hasPhoto"> -->
+    <span *ngIf="!hasPhoto">No photo available</span>
+    <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !=='' && hasPhoto" width="150" height="150" class="rounded-circle ee">
+</ng-template>
+<!--Commented By Bitan 30102019-->
+<!-- <div class="row">
+  <div class="col-md-6">
+    <h1 class="page-header">Mental Status Examination (MSE) Form</h1>
+  </div>
+  <div class="col-md-6 text-right">
+    <button class="btn btn-red" type="button" (click)="saveMseForm()">Save</button>
+  </div>
+</div> 
+
+<hr>-->
+<!-- <div class="row">
+  <div class="col-md-12">
+    <ol>
+      <li>
+        <p>General Appearance & Behaviour</p>
+        <ol type="A">
+          <li>
+            <p>Hygiene & Grooming</p>
+            <ol type="i" class="row">
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <p>Hygiene & Grooming</p>
+            <ol type="i" class="row">
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <p>General Appearance & Behaviour</p>
+        <ol type="A">
+          <li>
+            <p>Hygiene & Grooming</p>
+            <ol type="i" class="row">
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+            </ol>
+          </li>
+          <li>
+            <p>Hygiene & Grooming</p>
+            <ol type="i" class="row">
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+              <li class="col-md-4">
+                <input type="radio">
+                <span>Good/Well Groomed</span>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+  </div>
+</div> -->
+<!--//Commented By Bitan 30102019-->

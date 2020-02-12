@@ -1,0 +1,97 @@
+<!-- <div class="row">
+  <div class="col-md-6">
+    <h1 class="page-header">Client BMI Data</h1>
+  </div>
+  <div class="col-md-6 text-right">
+
+  </div>
+</div>
+<hr>
+<div class="content table-responsive">
+  <p-table [value]="clientBmiList" [paginator]="true" [rows]=10>
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col">Client Name</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Height</th>
+        <th scope="col"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-c>
+      <tr>
+        <td class="align-top">
+          <span>{{c.name}}</span>
+        </td>
+        <td class="align-top">
+          <span>{{c.weight}}</span>
+        </td>
+        <td class="align-top">
+          <span>{{c.height}}</span>
+        </td>
+        <td class="text-right">
+          <button class="btn btn-sm btn-primary mr-2" (click)="editHistory(c)">Edit History</button>
+          <button class="btn btn-sm btn-primary" (click)="addNew(c)">Add New</button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-sidebar [(visible)]="showSidebar" [style]="{width:'50%'}" position="right" [appendTo]="body" [baseZIndex]="9999">
+  <h1>Hello</h1>
+</p-sidebar> -->
+
+
+
+<div class="page-head">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="pageHeading">Client BMI Data</h1>
+        </div>
+        <div class="col-md-6 text-right">
+
+        </div>
+    </div>
+</div>
+<div class="sub-content">
+    <div class="row mt-2">
+        <div class="col-lg-4 col-md-6">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search by Name">
+            </div>
+        </div>
+    </div>
+    <div class="content table-responsive">
+        <p-table [value]="clientBmiList" [paginator]="true" [rows]=10>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th scope="col">Client Name</th>
+                    <th scope="col">Weight</th>
+                    <th scope="col">Height</th>
+                    <th scope="col"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-c>
+                <tr>
+                    <td class="align-top">
+                        <span>{{c.name}}</span>
+                    </td>
+                    <td class="align-top">
+                        <span>{{c.weight}}</span>
+                    </td>
+                    <td class="align-top">
+                        <span>{{c.height}}</span>
+                    </td>
+                    <td class="text-right">
+                        <button class="btn btn-sm btn-primary mr-2" (click)="editHistory(c)">Edit History</button>
+                        <button class="btn btn-sm btn-primary" (click)="addNew(c)">Add New</button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- <p-sidebar [(visible)]="showSidebar" [style]="{width:'50%'}" position="right" [appendTo]="body" [baseZIndex]="9999">
+            <h3>Row Editing</h3>
+    </p-sidebar> -->
+</div>

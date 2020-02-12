@@ -1,0 +1,17 @@
+.cardShadow {
+  box-shadow: 8px 14px 8px 8px #d9d9d9 !important;
+}
+
+.loginCard {
+  border-top: 5px solid #EF4023;
+  border-bottom: 5px solid #EF4023;
+  border-radius: 0px;
+}
+
+
+
+@media only screen and (min-width:1000px) {
+  .loginLogo {
+    display: none;
+  }
+}

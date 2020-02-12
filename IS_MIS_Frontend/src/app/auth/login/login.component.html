@@ -1,0 +1,98 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="card cardShadow mt-2 loginCard">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-8 loginFormCol1">
+
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <img class="m-auto" src="assets/images/logo.png">
+                                    <h3 class="page-header">Management Information System</h3>
+                                </div>
+                                <form [formGroup]="loginForm">
+                                    <!-- <div class="mb-3">
+                                        <label class="mr-2">Login for : </label>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="homeId" value="1" formControlName="homeId"><strong>Sarbari Home</strong>
+                                            </label>
+                                        </div>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="homeId" formControlName="homeId" value="2"><strong>Marudyan Home</strong>
+                                            </label>
+                                        </div>
+                                        <div class="validation-error" *ngIf="submitted && loginForm.controls.homeId.errors">
+                                                <span *ngIf="loginForm.controls.homeId.errors.required">This field is required</span>
+                                            </div>
+                                    </div> -->
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa fa-users"></i>
+                                                </div>
+                                            </div>
+                                            <select class="form-control" formControlName="homeId" required>
+                                                <option value="0">Select Programme</option>
+                                                <option *ngFor="let h of homeList" [value]="h.home_id">
+                                                    {{h.home_name}}
+                                                </option>
+                                            </select>
+
+                                        </div>
+                                        <div class="validation-error" *ngIf="submitted && loginForm.controls.homeId.value==0">
+                                                <span>Programme name is required</span>
+                                            </div>
+
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa fa-user"></i>
+                                                </div>
+                                            </div>
+                                            <input type="text" formControlName="userCode" class="form-control userEmail" 
+                                            (keyup)="enterToLogin($event)" placeholder="User Code" required>
+
+                                        </div>
+                                        <div class="validation-error" *ngIf="submitted && loginForm.controls.userCode.errors">
+                                            <span *ngIf="loginForm.controls.userCode.errors.required">User Code is required</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fa fa-lock"></i>
+                                                </div>
+                                            </div>
+                                            <input type="password" formControlName="userPassword" class="form-control userPassword"
+                                            (keyup)="enterToLogin($event)" placeholder="Password" required>
+
+                                        </div>
+                                        <div class="validation-error" *ngIf="submitted && loginForm.controls.userPassword.errors">
+                                            <span *ngIf="loginForm.controls.userPassword.errors.required">Password is required</span>
+                                        </div>
+                                    </div>
+                                    
+                                   
+                                    <button class="btn-custom btn-blue loginBtn float-right" type="button" (click)="reset()">Reset</button>
+                                    <button class="btn-custom btn-red loginBtn float-right mr-2" type="button" (click)="login()">Login</button>
+                                </form>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center pt-5">
+                            <img class="m-auto" src="assets/images/help.png" width="100%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

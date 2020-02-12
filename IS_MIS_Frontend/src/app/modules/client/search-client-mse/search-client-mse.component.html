@@ -1,0 +1,146 @@
+<div class="page-head">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="pageHeading">Search Client MSE Form</h1>
+            </div>
+            <div class="col-md-6 text-right">
+                    
+            </div>
+        </div>
+    </div>
+    
+    <div class="sub-content">
+        <form [formGroup]="searchClientForm">
+            <fieldset>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Client UID :</label>
+                        <!-- <input type="text" formControlName="clientId" class="form-control"> -->
+                        <div>
+                        <p-autoComplete [suggestions]="clientUIDList" placeholder="Type Client UID" (onSelect)="setClientUID($event)" [minLength]="1" #clientID
+                        (completeMethod)="getclientUIDList($event)" formControlName="clientUID" (onKeyUp)="manageUIDValue(clientID.value)">
+                        <ng-template let-results pTemplate="item">
+                            <span>{{results.clientUid}}</span>
+                        </ng-template>
+                        </p-autoComplete>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Client Name :</label>
+                            <!-- <input type="text" formControlName="clientId" class="form-control"> -->
+                            <div>
+                            <p-autoComplete [suggestions]="clientNameList" placeholder="Type Client Name" (onSelect)="setClientName($event)" [minLength]="1" #clientN
+                            (completeMethod)="getClientNameList($event)" formControlName="clientName" (onKeyUp)="manageNameValue(clientN.value)">
+                            <ng-template let-results pTemplate="item">
+                                <span>{{results.clientName}} (<b>{{results.clientUid}}</b>) </span>
+                            </ng-template>
+                            </p-autoComplete>
+                            </div>
+                        </div>
+                    </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Cohort Year :</label>
+                        <select formControlName="cohortYr" class="form-control">
+                            {{cohortYearList | json}}
+                            <option *ngFor="let year of cohortYearList" [value]="year">
+                                {{year}}
+                            </option>
+                        </select>
+                        
+                    </div>
+                </div>
+                <div class="col-md-12 text-center">
+                    <button type="button" class="btn-custom btn-red mr-2" (click)="searchClientList()">Search</button>
+                    <button type="button" class="btn-custom btn-blue" (click)="resetForm()">Reset</button>
+                </div>
+            </div>
+            </fieldset>
+        </form>
+        <div class="content table-responsive mt-2">
+            <div class="text-center no-record" *ngIf="clientList.length == 0 && submitted">
+                <h1><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></h1>
+                <h2>No data found for specified parameters.</h2>
+            </div>
+            <p-table [columns]="columns" [value]="clientList" [paginator]="true" [rows]=10  [scrollable]="true" scrollHeight="calc(100vh - 322px)" *ngIf="clientList.length > 0">
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                            {{col.header}}
+                                <p-sortIcon [field]="col.field" ariaLabel="Activate to sort" ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order"></p-sortIcon>
+                        </th>
+                        <!-- <th scope="col">Client UID</th>
+                        <th scope="col">Client Name</th>
+                        <th scope="col">Age(in yrs)</th>
+                        <th scope="col">Police Station</th>
+                        <th scope="col">Date of Entry</th>
+                        <th scope="col">Cohort Year</th> -->
+                        <th scope="col"></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-c>
+                    <tr>
+                            <td *ngFor="let col of columns; let i=index;">
+                                    <ng-container *ngIf="i==0">
+                                            <a href="javascript:void(0);"  [tooltip]="tolTemplate" (onShown)="showProfilePhoto(c.clientId)" placement="auto" container="body" (click)="editClient(c.clientId)">
+                                                    <span>{{c[col.field] }}</span>
+                                                    </a>
+                                    </ng-container>
+                                    <ng-container *ngIf="i==1">
+                                            {{c[col.field]}}
+                                    </ng-container>
+                                    <ng-container *ngIf="i==2">
+                                            {{c[col.field]}}
+                                    </ng-container>
+                                    <ng-container *ngIf="i==3">
+                                            {{c[col.field]}}
+                                    </ng-container>
+                                <ng-container *ngIf="i==4">
+                                        {{c[col.field]  | date:'dd-MM-yyyy'}}
+                                </ng-container>
+                                <ng-container *ngIf="i==5">
+                                        {{c[col.field]}}
+                                </ng-container>
+                                
+                            </td>
+                        <!-- <td class="align-top">
+                            <a tooltip="Edit MSE" placement="auto" container="body"  href="javascript:void(0);" (click)="editClient(c.clientId)">
+                            <span>{{c.clientUid}}</span>
+                            </a>
+                        </td>
+                        <td class="align-top">
+                            <span>{{c.clientName}}</span>
+                        </td>
+                        <td class="align-top">
+                            <span>{{c.age}}</span>
+                        </td>
+                        <td class="align-top">
+                                <span>{{c.policeStation}}</span>
+                            </td>
+                        <td class="align-top">
+                                <span>{{c.dateOfEntry | date:'dd-MM-yyyy'}}</span>
+                            </td>
+                            <td class="align-top">
+                                    <span>{{c.cohortYear}}</span>
+                                </td> -->
+                        <td class="text-right">
+                            <a  tooltip="View MSE" placement="auto" container="body"  class="mr-3" href="javascript:void(0);" (click)="viewClient(c.clientId)">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                            <a  tooltip="Edit MSE" placement="auto" container="body"  href="javascript:void(0);" (click)="editClient(c.clientId)">
+                                <i class="fa fa-edit"></i>
+                            </a>
+    
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+        <ng-template #tolTemplate>
+            <!-- <img src="assets/images/profile.png" width="100" *ngIf="!hasPhoto"> -->
+            <span *ngIf="!hasPhoto">No photo available</span>
+            <img [src]="domSanitizer.bypassSecurityTrustUrl(profilePhoto)" *ngIf="profilePhoto !=='' && hasPhoto" width="150" height="150" class="rounded-circle ee">
+        </ng-template>
